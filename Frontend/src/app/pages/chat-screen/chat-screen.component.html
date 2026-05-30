@@ -1,0 +1,29 @@
+<div class="container">
+  <div class="header">
+    <img src="{{contactAvatar}}" alt="Avatar">
+    <p>{{contactName}}</p>
+    <p>{{contactLastSeen}}</p>
+  </div>
+  <hr>
+  <div class="messages">
+    @for (message of messages; track message.id) {
+      <div class="message" [ngClass]="message.sentByMe ? 'message-sent' : 'message-received'">
+        <p>{{message.message}}</p>
+        <p>{{message.time}}</p>
+        @if (message.sentByMe) {
+          @switch (message.status) {
+            @case (EStatus.SENT) {
+              Gesendet
+            }
+            @case (EStatus.RECEIVED) {
+              Empfangen
+            }
+            @case (EStatus.READ) {
+              Gelesen
+            }
+        }
+        }
+      </div>
+    }
+  </div>
+</div>

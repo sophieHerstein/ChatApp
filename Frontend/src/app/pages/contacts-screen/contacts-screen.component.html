@@ -1,0 +1,12 @@
+<div class="container">
+  <h1>Kontakte</h1>
+  <hr/>
+  @for (contact of contacts; track contact.id) {
+    <div class="contact border border-1" [ngClass]="{'unread': contact.messageUnread}" [routerLink]="['/' + EAppPaths.Chat, contact.id]">
+      <img src="{{contact.avatar}}" alt="Avatar">
+      <p>{{contact.name}}</p>
+      <p>{{contact.lastMessage}}</p>
+      <p>{{contact.lastMessageTime}}</p>
+    </div>
+  }
+</div>
