@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
   encapsulation: ViewEncapsulation.None,
 })
 export class RegistrationScreenComponent {
-  username = '';
+  username = ''; //TODO: check das username nicht schon vorhanden ist
   password = '';
   protected readonly EAppPaths = EAppPaths;
 }
