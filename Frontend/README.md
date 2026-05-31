@@ -12,3 +12,5 @@ dark mode
 profil/einstellungen ergänzen
 
 header ergänzen - für ausloggen und die zuvor genannten features
+
+Kontakte hinzufügen / suchen
