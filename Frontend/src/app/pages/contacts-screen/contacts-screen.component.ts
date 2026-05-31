@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { EAppPaths } from '../../app.paths';
 
 @Component({
-  selector: 'app-contacts',
+  selector: 'app-contacts-screen',
   imports: [NgClass, RouterLink],
   templateUrl: './contacts-screen.component.html',
   styleUrl: './contacts-screen.component.scss',
