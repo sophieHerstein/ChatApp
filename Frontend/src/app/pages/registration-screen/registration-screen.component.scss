@@ -1,0 +1,17 @@
+app-registration-screen {
+  .background {
+    background: linear-gradient(45deg, #8ec5fc 0.000%, #8dd3ff 25.000%, #a1d8ff 50.000%, #c1d2ff 75.000%, #e0c3ff 100.000%);
+    height: 100vh;
+  }
+
+  .card {
+    padding: 32px;
+    width: 40vw;
+    background: rgba(255, 255, 255, 0);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6.5px);
+    -webkit-backdrop-filter: blur(6.5px);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+  }
+}
