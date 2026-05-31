@@ -20,12 +20,16 @@ app-contacts-screen {
     border: 1px solid rgba(255, 255, 255, 0.32);
 
     .contact-name {
-      font-weight: bold;
       font-size: 1.2rem;
     }
 
     .contact-last-message-time {
       font-size: 0.8rem;
+      font-weight: 5;
+    }
+
+    .contact-last-message {
+      font-weight: 50;
     }
 
     &:hover {
@@ -36,6 +40,27 @@ app-contacts-screen {
         0 0 20px rgba(255, 255, 255, 0.15);
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    &.unread {
+      border-width: 3px;
+      border-color: rgba(255, 255, 255, 0.7);
+      .contact-name,
+      .contact-last-message {
+        font-weight: bold;
+      }
+    }
+
+    &.unread::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #7c3aed;
+      box-shadow: 0 0 12px #7c3aed;
     }
   }
 }
