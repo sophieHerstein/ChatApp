@@ -1,14 +1,12 @@
-@use "bootstrap/scss/bootstrap" with (
-
+@use 'bootstrap/scss/bootstrap' with (
   $theme-colors: (
-    "primary":   #7C3AED,
-    "secondary": #64748B,
-    "success":   #22C55E,
-    "info":      #06B6D4,
-    "warning":   #F59E0B,
-    "danger":    #EF4444,
-    "light":     #F8FAFC,
-    "dark":      #0F172A,
+    'primary': #7c3aed,
+    'secondary': #64748b,
+    'success': #22c55e,
+    'info': #06b6d4,
+    'warning': #f59e0b,
+    'danger': #ef4444,
+    'light': #f8fafc,
+    'dark': #0f172a,
   )
-
 );
