@@ -1,4 +1,4 @@
-import {EStatus} from './status';
+import { EStatus } from './status';
 
 export interface IMessage {
   id: number;
