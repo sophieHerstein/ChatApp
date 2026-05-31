@@ -1,5 +1,5 @@
 export enum EStatus {
   SENT,
   RECEIVED,
-  READ
+  READ,
 }
