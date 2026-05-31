@@ -5,6 +5,8 @@
 [//]: # (TODO)
 
 https://angular.dev/guide/routing/define-routes#page-titles
+zentral hintergrundfarbe festlegen
+dark mode
 
 zentral hintergrundfarbe festlegen
 
