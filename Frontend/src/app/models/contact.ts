@@ -3,6 +3,6 @@ export interface IContact {
   name: string;
   lastMessage: string;
   messageUnread: boolean;
-  avatar: string;
+  image: string;
   lastMessageTime: string;
 }

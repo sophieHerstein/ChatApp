@@ -1,12 +1,12 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import { IContact } from '../../models/contact';
 import { RouterLink } from '@angular/router';
 import { EAppPaths } from '../../app.paths';
 
 @Component({
   selector: 'app-contacts-screen',
-  imports: [NgClass, RouterLink],
+  imports: [NgClass, RouterLink, NgOptimizedImage],
   templateUrl: './contacts-screen.component.html',
   styleUrl: './contacts-screen.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -18,7 +18,7 @@ export class ContactsScreenComponent {
       name: 'Max',
       lastMessage: 'Hallo',
       messageUnread: true,
-      avatar: 'https://picsum.photos/200',
+      image: 'https://picsum.photos/200',
       lastMessageTime: '12:00',
     },
     {
@@ -26,7 +26,7 @@ export class ContactsScreenComponent {
       name: 'Anna',
       lastMessage: 'Hallo',
       messageUnread: false,
-      avatar: 'https://picsum.photos/200',
+      image: 'https://picsum.photos/200',
       lastMessageTime: '12:00',
     },
     {
@@ -34,7 +34,7 @@ export class ContactsScreenComponent {
       name: 'Peter',
       lastMessage: 'Hallo',
       messageUnread: true,
-      avatar: 'https://picsum.photos/200',
+      image: 'https://picsum.photos/200',
       lastMessageTime: '12:00',
     },
     {
@@ -42,7 +42,7 @@ export class ContactsScreenComponent {
       name: 'Maria',
       lastMessage: 'Hallo',
       messageUnread: false,
-      avatar: 'https://picsum.photos/200',
+      image: 'https://picsum.photos/200',
       lastMessageTime: '12:00',
     },
     {
@@ -50,7 +50,7 @@ export class ContactsScreenComponent {
       name: 'John',
       lastMessage: 'Hallo',
       messageUnread: true,
-      avatar: 'https://picsum.photos/200',
+      image: 'https://picsum.photos/200',
       lastMessageTime: '12:00',
     },
   ];
