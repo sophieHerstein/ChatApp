@@ -4,7 +4,7 @@
 
     @for (contact of contacts; track contact.id) {
       <div
-        class="contact p-3 mb-3"
+        class="contact card p-3 mb-3"
         [ngClass]="{ unread: contact.messageUnread }"
         [routerLink]="['/' + EAppPaths.Chat, contact.id]"
       >

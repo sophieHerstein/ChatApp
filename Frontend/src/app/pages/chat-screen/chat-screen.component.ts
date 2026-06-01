@@ -1,13 +1,16 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import { IMessage } from '../../models/message';
 import { EStatus } from '../../models/status';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapSend, bootstrapSendFill, bootstrapSendCheck } from '@ng-icons/bootstrap-icons';
 
 @Component({
   selector: 'app-chat-screen',
-  imports: [NgClass],
+  imports: [NgClass, NgOptimizedImage, NgIcon],
   templateUrl: './chat-screen.component.html',
   styleUrl: './chat-screen.component.scss',
+  viewProviders: [provideIcons({ bootstrapSend, bootstrapSendFill, bootstrapSendCheck })],
   encapsulation: ViewEncapsulation.None,
 })
 export class ChatScreenComponent {

@@ -1,28 +1,35 @@
 <div class="background">
-  <div class="header">
-    <img src="{{ contactAvatar }}" alt="Avatar" />
-    <p>{{ contactName }}</p>
-    <p>{{ contactLastSeen }}</p>
+  <div class="header p-4 d-flex flex-row align-items-center gap-4">
+    <img class="rounded-5" ngSrc="{{ contactAvatar }}" alt="Avatar" width="100" height="100" />
+    <div class="d-flex flex-column gap-2">
+      <span class="fs-2 fw-bold">{{ contactName }}</span>
+      <span class="fs-6 fw-light">Zuletzt online {{ contactLastSeen }}</span>
+    </div>
   </div>
   <hr />
-  <div class="messages">
+  <div class="messages position-absolute w-100 p-5">
     @for (message of messages; track message.id) {
-      <div class="message" [ngClass]="message.sentByMe ? 'message-sent' : 'message-received'">
-        <p>{{ message.message }}</p>
-        <p>{{ message.time }}</p>
-        @if (message.sentByMe) {
-          @switch (message.status) {
-            @case (EStatus.SENT) {
-              Gesendet
-            }
-            @case (EStatus.RECEIVED) {
-              Empfangen
-            }
-            @case (EStatus.READ) {
-              Gelesen
+      <div
+        class="message card mb-3 p-3"
+        [ngClass]="message.sentByMe ? 'message-sent' : 'message-received'"
+      >
+        <span>{{ message.message }}</span>
+        <div class="d-flex justify-content-between mt-2">
+          <span class="message-time">{{ message.time }}</span>
+          @if (message.sentByMe) {
+            @switch (message.status) {
+              @case (EStatus.SENT) {
+                <ng-icon class="text-primary" name="bootstrapSend"></ng-icon>
+              }
+              @case (EStatus.RECEIVED) {
+                <ng-icon class="text-primary" name="bootstrapSendFill"></ng-icon>
+              }
+              @case (EStatus.READ) {
+                <ng-icon class="text-primary" name="bootstrapSendCheck"></ng-icon>
+              }
             }
           }
-        }
+        </div>
       </div>
     }
   </div>
