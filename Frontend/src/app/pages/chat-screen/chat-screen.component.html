@@ -19,10 +19,10 @@
           @if (message.sentByMe) {
             @switch (message.status) {
               @case (EStatus.SENT) {
-                <ng-icon class="text-primary" name="bootstrapSend"></ng-icon>
+                <ng-icon class="text-secondary" name="bootstrapSend"></ng-icon>
               }
               @case (EStatus.RECEIVED) {
-                <ng-icon class="text-primary" name="bootstrapSendFill"></ng-icon>
+                <ng-icon class="text-secondary" name="bootstrapSendFill"></ng-icon>
               }
               @case (EStatus.READ) {
                 <ng-icon class="text-primary" name="bootstrapSendCheck"></ng-icon>

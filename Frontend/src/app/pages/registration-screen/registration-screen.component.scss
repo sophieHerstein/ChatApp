@@ -1,4 +1,12 @@
 app-registration-screen {
+  .profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+
   .card {
     padding: 32px;
     width: 40vw;

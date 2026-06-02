@@ -1,7 +1,8 @@
-<div class="background d-flex flex-column align-items-center justify-content-center">
-  <div class="card">
-    <h1>Registrierung</h1>
-    <div class="d-flex flex-column align-items-center mb-3">
+<div class="background">
+  <div class="container">
+    <h1>Einstellungen</h1>
+    <div class="d-flex flex-column mb-3">
+      <span>Profilbild ändern</span>
       @if (profileImagePreview()) {
         <img [src]="profileImagePreview()" alt="Profilbild" class="profile-image mb-2" />
       }
@@ -12,12 +13,12 @@
         hidden
         (change)="onProfileImageSelected($event)"
       />
-      <button type="button" class="btn btn-secondary" (click)="fileInput.click()">
+      <button type="button" class="btn btn-secondary mt-2" (click)="fileInput.click()">
         Profilbild auswählen
       </button>
     </div>
     <div class="d-flex flex-column mt-3 mb-2">
-      <label for="nutzername">Nutzername</label>
+      <label for="nutzername">Nutzername ändern</label>
       <input id="nutzername" type="text" [(ngModel)]="username" />
     </div>
     <div class="d-flex flex-row justify-content-between gap-3">
@@ -30,9 +31,6 @@
         <input id="passwortWiederholen" type="password" [(ngModel)]="password" />
       </div>
     </div>
-    <button class="btn btn-primary mb-2" [routerLink]="'/' + EAppPaths.Contacts">
-      Registrieren
-    </button>
-    <span>Account bereits vorhanden? <a [routerLink]="'/' + EAppPaths.Login">Anmelden</a></span>
+    <button class="btn btn-primary mb-2" (click)="save()">Speichern</button>
   </div>
 </div>

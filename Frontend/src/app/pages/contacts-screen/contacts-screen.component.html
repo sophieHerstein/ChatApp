@@ -1,7 +1,10 @@
 <div class="background">
   <div class="container">
     <h1>Kontakte</h1>
-
+    <button class="btn btn-secondary mb-3" (click)="addContact()">
+      <ng-icon name="bootstrapPlusCircle"></ng-icon>
+      Kontakt hinzufügen
+    </button>
     @for (contact of contacts; track contact.id) {
       <div
         class="contact card p-3 mb-3"

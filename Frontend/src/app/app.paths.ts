@@ -3,5 +3,6 @@ export enum EAppPaths {
   Register = 'register',
   Contacts = 'contacts',
   Chat = 'chat',
+  Settings = 'settings',
   NotFound = '404',
 }

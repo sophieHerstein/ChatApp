@@ -1,17 +1,16 @@
 import { Component, signal, ViewEncapsulation } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EAppPaths } from '../../app.paths';
-import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-registration-screen',
-  imports: [ReactiveFormsModule, FormsModule, RouterLink],
-  templateUrl: './registration-screen.component.html',
-  styleUrl: './registration-screen.component.scss',
+  selector: 'app-settings',
+  imports: [ReactiveFormsModule, FormsModule],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class RegistrationScreenComponent {
-  username = ''; //TODO: check das username nicht schon vorhanden ist
+export class SettingsComponent {
+  username = '';
   password = '';
   confirmPassword = '';
 
@@ -33,5 +32,9 @@ export class RegistrationScreenComponent {
       this.profileImagePreview.set(reader.result as string);
     };
     reader.readAsDataURL(file);
+  }
+
+  save() {
+    console.log('save');
   }
 }

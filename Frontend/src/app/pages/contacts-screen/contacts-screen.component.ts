@@ -3,10 +3,17 @@ import { NgClass, NgOptimizedImage } from '@angular/common';
 import { IContact } from '../../models/contact';
 import { RouterLink } from '@angular/router';
 import { EAppPaths } from '../../app.paths';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapPlusCircle } from '@ng-icons/bootstrap-icons';
 
 @Component({
   selector: 'app-contacts-screen',
-  imports: [NgClass, RouterLink, NgOptimizedImage],
+  imports: [NgClass, RouterLink, NgOptimizedImage, NgIcon],
+  viewProviders: [
+    provideIcons({
+      bootstrapPlusCircle,
+    }),
+  ],
   templateUrl: './contacts-screen.component.html',
   styleUrl: './contacts-screen.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -54,5 +61,10 @@ export class ContactsScreenComponent {
       lastMessageTime: '12:00',
     },
   ];
+
   protected readonly EAppPaths = EAppPaths;
+
+  addContact() {
+    console.log('add contact');
+  }
 }
