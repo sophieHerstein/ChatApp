@@ -29,3 +29,4 @@ yarn-error.log*
 /.idea
 /Frontend/.vscode
 /Backend/target
+.DS_Store
