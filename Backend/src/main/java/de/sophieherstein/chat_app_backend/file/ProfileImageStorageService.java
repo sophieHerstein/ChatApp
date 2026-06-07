@@ -8,9 +8,11 @@ import java.util.UUID;
 
 import de.sophieherstein.chat_app_backend.exceptions.InvalidProfileImageException;
 import de.sophieherstein.chat_app_backend.exceptions.ProfileImageStorageException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 public class ProfileImageStorageService {
 
@@ -22,6 +24,7 @@ public class ProfileImageStorageService {
     );
 
     public String store(MultipartFile file) {
+        log.debug("Storing profile image");
         validate(file);
 
         try {
@@ -32,7 +35,7 @@ public class ProfileImageStorageService {
 
             Path targetPath = UPLOAD_DIR.resolve(filename);
             file.transferTo(targetPath);
-
+            log.debug("Profile image stored at {}", targetPath);
             return "/uploads/profile-images/" + filename;
         } catch (IOException ex) {
             throw new ProfileImageStorageException(ex);
@@ -40,6 +43,7 @@ public class ProfileImageStorageService {
     }
 
     private void validate(MultipartFile file) {
+        log.debug("Validating profile image");
         if (file.isEmpty()) {
             throw new InvalidProfileImageException("Profile image is empty");
         }

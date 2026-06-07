@@ -18,3 +18,14 @@ spring:
       multipart:
         max-file-size: 2MB
         max-request-size: 3MB
+
+  jwt:
+    secret: the-super-secret-key-that-is-at-least-32-characters-long
+    expiration: 3600000
+
+  logging:
+    level:
+      root: INFO
+      de.sophieherstein.chat_app_backend: DEBUG
+      org.springframework.security: INFO
+      org.hibernate.SQL: WARN
