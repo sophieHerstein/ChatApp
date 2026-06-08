@@ -1,0 +1,28 @@
+<div class="navbar ps-5 pe-5">
+  <img class="rounded" ngSrc="{{ profileImage }}" alt="Avatar" width="50" height="50" />
+  <div class="d-flex align-items-center gap-2">
+    <ng-icon class="text-secondary" name="bootstrapSearch"></ng-icon>
+    <input type="text" [(ngModel)]="suche" placeholder="Suche..." />
+  </div>
+  <div class="d-flex align-items-center gap-4">
+    @if(showContacts){
+      <a [routerLink]="'/' + EAppPaths.Contacts" class="d-flex align-items-center gap-2">
+        <ng-icon class="text-secondary" name="bootstrapHouseFill"></ng-icon>
+      </a>
+    }
+    <a
+      [routerLink]="'/' + EAppPaths.Settings"
+      class="d-flex align-items-center gap-2 text-decoration-none text-secondary"
+    >
+      <ng-icon class="text-secondary" name="bootstrapPersonFillGear"></ng-icon>
+      <span>Einstellungen</span>
+    </a>
+    <button
+      class="d-flex align-items-center gap-2 bg-transparent border-0 text-danger"
+      (click)="logout()"
+    >
+      <ng-icon class="text-danger" name="bootstrapPersonFillX"></ng-icon>
+      <span>Abmelden</span>
+    </button>
+  </div>
+</div>

@@ -3,34 +3,105 @@
     <h1>Registrierung</h1>
     <div class="d-flex flex-column align-items-center mb-3">
       @if (profileImagePreview()) {
-        <img [src]="profileImagePreview()" alt="Profilbild" class="profile-image mb-2" />
+        <img [src]="profileImagePreview()" alt="Profilbild" class="profile-image mb-2"/>
       }
       <input
         #fileInput
-        type="file"
+        (change)="onProfileImageSelected($event)"
         accept="image/*"
         hidden
-        (change)="onProfileImageSelected($event)"
+        type="file"
       />
-      <button type="button" class="btn btn-secondary" (click)="fileInput.click()">
+      <button (click)="fileInput.click()" class="btn btn-secondary" type="button">
         Profilbild auswählen
       </button>
     </div>
     <div class="d-flex flex-column mt-3 mb-2">
       <label for="nutzername">Nutzername</label>
-      <input id="nutzername" type="text" [(ngModel)]="username" />
+      <input [formControl]="usernameFC" id="nutzername" type="text"/>
+      @if (usernameFC.invalid && usernameFC.touched) {
+        <div class="text-danger">
+          @if (usernameFC.errors?.['minlength']) {
+            <span>Nutzername ist zu kurz</span>
+          }
+          @if (usernameFC.errors?.['maxlength']) {
+            <span>Nutzername ist zu lang</span>
+          }
+          @if (usernameFC.errors?.['required']) {
+            <span>Nutzername ist erforderlich</span>
+          }
+        </div>
+      }
     </div>
-    <div class="d-flex flex-row justify-content-between gap-3">
-      <div class="d-flex flex-column mb-3 w-75">
-        <label for="passwort">Passwort</label>
-        <input id="passwort" type="password" [(ngModel)]="confirmPassword" />
+    <div class="d-flex flex-column justify-content-between gap-1 mb-3">
+      <div class="d-flex flex-row justify-content-between gap-3">
+
+        <div class="d-flex flex-column w-75">
+          <label for="passwort">Passwort</label>
+          <div class="password-wrapper">
+            <input
+              class="form-control"
+              [formControl]="passwordFC"
+              [type]="showPassword ? 'text' : 'password'"
+              id="passwort"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="showPassword = !showPassword">
+              <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+            </button>
+          </div>
+        </div>
+        <div class="d-flex flex-column w-75">
+          <label for="passwortWiederholen">Passwort wiederholen</label>
+          <div class="password-wrapper">
+            <input
+              class="form-control"
+              [formControl]="confirmPasswordFC"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="passwortWiederholen"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="showConfirmPassword = !showConfirmPassword">
+              <ng-icon [name]="showConfirmPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="d-flex flex-column mb-3 w-75">
-        <label for="passwortWiederholen">Passwort wiederholen</label>
-        <input id="passwortWiederholen" type="password" [(ngModel)]="password" />
+      <div>
+        <div class="text-danger mb-3">
+          @if (passwordFC.invalid && passwordFC.touched) {
+            @if (passwordFC.errors?.['minlength']) {
+              <span>Passwort ist zu kurz.</span><br>
+            }
+            @if (passwordFC.errors?.['maxlength']) {
+              <span>Passwort ist zu lang.</span><br>
+            }
+            @if (passwordFC.errors?.['required']) {
+              <span>Passwort ist erforderlich.</span><br>
+            }
+            @if (passwordFC.errors?.['pattern']) {
+              <span>Das Passwort muss Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen (#?!&#64;$%^&*-) enthalten.</span>
+              <br>
+            }
+
+          }
+          @if (passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched) {
+            <span class="text-danger">Die Passwörter stimmen nicht überein.</span>
+          }
+          @if (errorOccured) {
+            <span class="text-danger">Ein Fehler ist aufgetreten. Versuche es erneut.</span>
+          }
+        </div>
+
       </div>
     </div>
-    <button class="btn btn-primary mb-2" [routerLink]="'/' + EAppPaths.Contacts">
+    <button (click)="register()"
+            [disabled]="usernameFC.invalid || passwordFC.invalid || confirmPasswordFC.invalid || passwordFG.invalid || profileImage() === null"
+            class="btn btn-primary mb-2">
       Registrieren
     </button>
     <span>Account bereits vorhanden? <a [routerLink]="'/' + EAppPaths.Login">Anmelden</a></span>

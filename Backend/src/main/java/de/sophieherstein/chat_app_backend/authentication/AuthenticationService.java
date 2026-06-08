@@ -3,6 +3,7 @@ package de.sophieherstein.chat_app_backend.authentication;
 import de.sophieherstein.chat_app_backend.authentication.dto.LoginRequest;
 import de.sophieherstein.chat_app_backend.authentication.dto.LoginResponse;
 import de.sophieherstein.chat_app_backend.authentication.dto.RegisterRequest;
+import de.sophieherstein.chat_app_backend.authentication.dto.UsernameAvailabilityResponse;
 import de.sophieherstein.chat_app_backend.authentication.jwt.JwtService;
 import de.sophieherstein.chat_app_backend.exceptions.InvalidCredentialsException;
 import de.sophieherstein.chat_app_backend.exceptions.UsernameAlreadyTakenException;
@@ -76,6 +77,15 @@ public class AuthenticationService {
                 "Bearer",
                 toUserResponse(user)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public UsernameAvailabilityResponse isUsernameAvailable(String username) {
+        String normalizedUsername = username.trim();
+
+        boolean exists = userRepository.existsByUsernameIgnoreCase(normalizedUsername);
+
+        return new UsernameAvailabilityResponse(!exists);
     }
 
     private UserResponse toUserResponse(User user) {

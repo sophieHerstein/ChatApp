@@ -3,6 +3,7 @@ package de.sophieherstein.chat_app_backend.authentication;
 import de.sophieherstein.chat_app_backend.authentication.dto.LoginRequest;
 import de.sophieherstein.chat_app_backend.authentication.dto.LoginResponse;
 import de.sophieherstein.chat_app_backend.authentication.dto.RegisterRequest;
+import de.sophieherstein.chat_app_backend.authentication.dto.UsernameAvailabilityResponse;
 import de.sophieherstein.chat_app_backend.user.dto.UserResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,12 @@ public class AuthenticationController {
     ) {
         log.info("Logging in user: {}", request.username());
         return authService.login(request);
+    }
+
+    @GetMapping("/username-available")
+    public UsernameAvailabilityResponse isUsernameAvailable(
+            @RequestParam String username
+    ) {
+        return authService.isUsernameAvailable(username);
     }
 }

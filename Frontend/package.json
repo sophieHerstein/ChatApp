@@ -10,7 +10,10 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "openapi:download": "curl http://localhost:8080/v3/api-docs -o src/api-spec/openapi.json",
+    "openapi:generate": "openapi-generator-cli generate -i src/api-spec/openapi.json -g typescript-angular -o src/app/generated/api --additional-properties=providedInRoot=true",
+    "openapi:refresh": "npm run openapi:download && npm run openapi:generate"
   },
   "private": true,
   "dependencies": {
@@ -31,6 +34,7 @@
     "@angular/cli": "^21.1.1",
     "@angular/compiler-cli": "^21.1.0",
     "@eslint/js": "^10.0.1",
+    "@openapitools/openapi-generator-cli": "^2.34.0",
     "angular-eslint": "^21.4.0",
     "eslint": "^10.4.1",
     "eslint-config-prettier": "^10.1.8",

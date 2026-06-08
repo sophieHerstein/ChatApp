@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { EAppPaths } from '../../app.paths';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapPlusCircle } from '@ng-icons/bootstrap-icons';
+import {HeaderComponent} from '../../components/header/header.component';
 
 @Component({
   selector: 'app-contacts-screen',
-  imports: [NgClass, RouterLink, NgOptimizedImage, NgIcon],
+  imports: [NgClass, RouterLink, NgOptimizedImage, NgIcon, HeaderComponent],
   viewProviders: [
     provideIcons({
       bootstrapPlusCircle,

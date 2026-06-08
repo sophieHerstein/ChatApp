@@ -30,3 +30,4 @@ yarn-error.log*
 /Frontend/.vscode
 /Backend/target
 .DS_Store
+/Frontend/src/app/generated/
