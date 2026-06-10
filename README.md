@@ -1,28 +1,19 @@
 # ChatApp
 
 ## TODOs
-DB aufsetzen
 
-Registrierung (Backend)
+- Get UserData für Startseite und Einstellungen-Seite (Backend)
 
-OpenAPI/Swagger-Spezifikation
+- Bearbeiten der UserData (Backend)
 
-Login - Jwt Token (Backend)
+- UserData Stuff ins Frontend bringen
 
-Login und Registrierung ins Frontend bringen
+- UserSuche & User hinzufügen - Backend
 
-Get UserData für Startseite und Einstellungen-Seite (Backend)
+- UserSuche & User hinzufügen - Frontend
 
-Bearbeiten der UserData (Backend)
+- Send und Get Message - Backend
 
-UserData Stuff ins Frontend bringen
+- Send und Get Message ins Frontend bringen (sowohl für Kontakte Seite als auch Chat Seite)
 
-UserSuche & User hinzufügen - Backend
-
-UserSuche & User hinzufügen - Frontend
-
-Send und Get Message - Backend
-
-Send und Get Message ins Frontend bringen (sowohl für Kontakte Seite als auch Chat Seite)
-
-Feinschliff & weiteres (ggf. extra Seite für alle Kontakte, weitere Einstellungen, Gruppen Chats, Benachrichtigung/Ton bei neuen Nachrichten, Dummy Data)
+- Feinschliff & weiteres (ggf. extra Seite für alle Kontakte, weitere Einstellungen, Gruppen Chats, Benachrichtigung/Ton bei neuen Nachrichten, Dummy Data)
