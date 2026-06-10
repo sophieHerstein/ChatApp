@@ -9,7 +9,9 @@ import {
   bootstrapPersonFillX,
   bootstrapSearch
 } from '@ng-icons/bootstrap-icons';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
+import {AuthenticationService} from '../../services/authentication.service';
+import {AuthenticationStoreService} from '../../services/authentication-store.service';
 
 @Component({
   selector: 'app-header',
@@ -40,7 +42,10 @@ export class HeaderComponent {
 
   protected readonly EAppPaths = EAppPaths;
 
+  constructor(private authenticationStoreService: AuthenticationStoreService, private router: Router) {
+  }
   logout() {
-    console.log('Logout');
+    this.authenticationStoreService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -31,7 +31,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     @Transactional
-    public UserResponse register(RegisterRequest request) {
+    public LoginResponse register(RegisterRequest request) {
         log.info("Registering user: {}", request.getUsername());
         String username = request.getUsername().trim();
 
@@ -55,7 +55,13 @@ public class AuthenticationService {
 
         User savedUser = userRepository.save(user);
         log.info("User {} registered successfully", savedUser.getUsername());
-        return toUserResponse(savedUser);
+        String accessToken = jwtService.generateToken(savedUser);
+
+        return new LoginResponse(
+                accessToken,
+                "Bearer",
+                toUserResponse(savedUser)
+        );
     }
 
     @Transactional(readOnly = true)

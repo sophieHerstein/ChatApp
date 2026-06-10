@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { EAppPaths } from './app.paths';
+import {authenticationGuard} from './guards/authentication.guard';
 
 export const routes: Routes = [
   {
@@ -28,19 +29,21 @@ export const routes: Routes = [
       import('./pages/contacts-screen/contacts-screen.component').then(
         (m) => m.ContactsScreenComponent,
       ),
+    canActivate: [authenticationGuard]
   },
   {
     path: EAppPaths.Settings,
     title: 'Einstellungen',
     loadComponent: () =>
       import('./pages/settings/settings.component').then((m) => m.SettingsComponent),
+  canActivate: [authenticationGuard]
   },
   {
     path: `${EAppPaths.Chat}/:id`,
     title: 'Chat',
     loadComponent: () =>
       import('./pages/chat-screen/chat-screen.component').then((m) => m.ChatScreenComponent),
-  },
+  canActivate: [authenticationGuard]},
   {
     path: `${EAppPaths.NotFound}`,
     title: 'Seite nicht gefunden',

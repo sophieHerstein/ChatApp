@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "openapi:download": "curl http://localhost:8080/v3/api-docs -o src/api-spec/openapi.json",
-    "openapi:generate": "openapi-generator-cli generate -i src/api-spec/openapi.json -g typescript-angular -o src/app/generated/api --additional-properties=providedInRoot=true",
+    "openapi:generate": "openapi-generator-cli generate -i src/api-spec/openapi.json -g typescript-angular -o src/app/generated/api --additional-properties=providedInRoot=true,withInterfaces=true",
     "openapi:refresh": "npm run openapi:download && npm run openapi:generate"
   },
   "private": true,

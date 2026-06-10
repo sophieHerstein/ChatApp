@@ -22,17 +22,21 @@ public class AuthenticationController {
 
     @PostMapping(
             value = "/register",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse register(
+    @ResponseStatus(HttpStatus.CREATED)
+    public LoginResponse register(
             @Valid @ModelAttribute RegisterRequest request
     ) {
-        log.info("Registering user: {}", request.getUsername());
         return authService.register(request);
     }
 
-    @PostMapping("/login")
+    @PostMapping(
+            value = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ResponseStatus(HttpStatus.OK)
     public LoginResponse login(
             @Valid @RequestBody LoginRequest request

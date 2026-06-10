@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import {AuthenticationControllerService, UsernameAvailabilityResponse, UserResponse} from '../generated/api';
+import {
+  AuthenticationControllerService,
+  LoginRequest, LoginResponse,
+  UsernameAvailabilityResponse,
+  UserResponse
+} from '../generated/api';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -8,11 +13,15 @@ import {Observable} from 'rxjs';
 export class AuthenticationService {
   constructor(private authenticationControllerService: AuthenticationControllerService) {}
 
-  public register(username: string, password: string, profileImage?: Blob): Observable<UserResponse> {
+  public register(username: string, password: string, profileImage?: Blob): Observable<LoginResponse> {
     return this.authenticationControllerService.register(username, password, profileImage);
   }
 
   public isUsernameAvailable(username: string): Observable<UsernameAvailabilityResponse> {
     return this.authenticationControllerService.isUsernameAvailable(username);
+  }
+
+  public login(loginData: LoginRequest): Observable<LoginResponse> {
+    return this.authenticationControllerService.login(loginData);
   }
 }

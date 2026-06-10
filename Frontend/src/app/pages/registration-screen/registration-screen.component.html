@@ -92,7 +92,7 @@
           @if (passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched) {
             <span class="text-danger">Die Passwörter stimmen nicht überein.</span>
           }
-          @if (errorOccured) {
+          @if (errorOccured()) {
             <span class="text-danger">Ein Fehler ist aufgetreten. Versuche es erneut.</span>
           }
         </div>

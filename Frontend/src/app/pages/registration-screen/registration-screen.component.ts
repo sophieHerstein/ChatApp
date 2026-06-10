@@ -15,6 +15,8 @@ import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs';
 import {confirmPasswordValidator} from '../../utils';
 import {NgIcon, provideIcons} from '@ng-icons/core';
 import {bootstrapEye, bootstrapEyeSlash} from '@ng-icons/bootstrap-icons';
+import {LoginResponse} from '../../generated/api';
+import {AuthenticationStoreService} from '../../services/authentication-store.service';
 
 @Component({
   selector: 'app-registration-screen',
@@ -32,7 +34,7 @@ export class RegistrationScreenComponent {
   confirmPasswordFC: FormControl = new FormControl('', [Validators.required, Validators.minLength(8),Validators.maxLength(100)]);
   passwordFG: FormGroup = new FormGroup({password: this.passwordFC, confirmPassword: this.confirmPasswordFC}, confirmPasswordValidator);
 
-  errorOccured = false;
+  errorOccured = signal<boolean>(false);
 
   showPassword = false;
   showConfirmPassword = false;
@@ -44,7 +46,7 @@ export class RegistrationScreenComponent {
 
   protected readonly EAppPaths = EAppPaths;
 
-  constructor(private authenticationService: AuthenticationService, private router: Router) {
+  constructor(private authenticationService: AuthenticationService, private authenticationStoreService: AuthenticationStoreService, private router: Router) {
     this.usernameFC.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged(),
@@ -57,15 +59,16 @@ export class RegistrationScreenComponent {
   }
 
   register() {
-    this.errorOccured = false;
+    this.errorOccured.set(false);
     this.authenticationService
       .register(this.usernameFC.value, this.passwordFC.value, this.profileImage() ?? undefined)
       .subscribe({
-        next: (user) => {
-          this.router.navigate([EAppPaths.Contacts]);
+        next: (response: LoginResponse) => {
+          this.authenticationStoreService.setLogin(response);
+          this.router.navigate(["/" + EAppPaths.Contacts]);
         },
         error: async (err) => {
-          this.errorOccured = true;
+          this.errorOccured.set(true);
         },
       });
   }
