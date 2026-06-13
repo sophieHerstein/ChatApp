@@ -31,3 +31,4 @@ yarn-error.log*
 /Backend/target
 .DS_Store
 /Frontend/src/app/generated/
+/uploads/

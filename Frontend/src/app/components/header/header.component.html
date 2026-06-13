@@ -1,12 +1,18 @@
 <div class="navbar ps-5 pe-5">
-  <img class="rounded" ngSrc="{{ profileImage }}" alt="Avatar" width="50" height="50" />
+  <div>
+    <img class="rounded" ngSrc="{{ profileImage() }}" alt="Avatar" width="50" height="50" />
+    <span class="ms-2 fs-5 fw-bold">{{ username() }}</span>
+  </div>
   <div class="d-flex align-items-center gap-2">
     <ng-icon class="text-secondary" name="bootstrapSearch"></ng-icon>
     <input type="text" [(ngModel)]="suche" placeholder="Suche..." />
   </div>
   <div class="d-flex align-items-center gap-4">
-    @if(showContacts){
-      <a [routerLink]="'/' + EAppPaths.Contacts" class="d-flex align-items-center gap-2">
+    @if (showContacts) {
+      <a
+        [routerLink]="'/' + EAppPaths.Contacts"
+        class="d-flex align-items-center gap-2 text-decoration-none text-secondary"
+      >
         <ng-icon class="text-secondary" name="bootstrapHouseFill"></ng-icon>
         <span>Kontakte</span>
       </a>

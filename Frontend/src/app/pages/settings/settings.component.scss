@@ -1,0 +1,41 @@
+app-settings {
+  .profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+
+  .password-wrapper {
+    position: relative;
+  }
+
+  .password-wrapper input {
+    padding-right: 3rem;
+  }
+
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #6c757d;
+    cursor: pointer;
+  }
+
+  .password-toggle:hover {
+    color: #212529;
+  }
+}

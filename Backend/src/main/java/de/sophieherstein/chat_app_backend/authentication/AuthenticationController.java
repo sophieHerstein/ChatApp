@@ -45,7 +45,9 @@ public class AuthenticationController {
         return authService.login(request);
     }
 
-    @GetMapping("/username-available")
+    @GetMapping(value = "/username-available",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public UsernameAvailabilityResponse isUsernameAvailable(
             @RequestParam String username
     ) {

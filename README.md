@@ -1,8 +1,12 @@
 # ChatApp
 
-## TODOs
+## TODOs#
 
-- Get UserData für Startseite und Einstellungen-Seite (Backend)
+Unsubscribe und sowas
+
+duplicated code settings und registrierung
+
+dokumentation
 
 - Bearbeiten der UserData (Backend)
 

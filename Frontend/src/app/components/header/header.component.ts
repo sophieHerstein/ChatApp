@@ -1,26 +1,20 @@
-import {Component, Input, ViewEncapsulation} from '@angular/core';
-import {FormsModule} from "@angular/forms";
-import {NgIcon, provideIcons} from "@ng-icons/core";
-import {NgOptimizedImage} from "@angular/common";
-import {EAppPaths} from "../../app.paths";
+import { Component, Input, signal, ViewEncapsulation, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { NgOptimizedImage } from '@angular/common';
+import { EAppPaths } from '../../app.paths';
 import {
   bootstrapHouseFill,
   bootstrapPersonFillGear,
   bootstrapPersonFillX,
-  bootstrapSearch
+  bootstrapSearch,
 } from '@ng-icons/bootstrap-icons';
-import {Router, RouterLink} from '@angular/router';
-import {AuthenticationService} from '../../services/authentication.service';
-import {AuthenticationStoreService} from '../../services/authentication-store.service';
+import { Router, RouterLink } from '@angular/router';
+import { AuthenticationStoreService } from '../../services/authentication-store.service';
 
 @Component({
   selector: 'app-header',
-  imports: [
-    FormsModule,
-    NgIcon,
-    NgOptimizedImage,
-    RouterLink
-  ],
+  imports: [FormsModule, NgIcon, NgOptimizedImage, RouterLink],
   viewProviders: [
     provideIcons({
       bootstrapPersonFillGear,
@@ -31,19 +25,25 @@ import {AuthenticationStoreService} from '../../services/authentication-store.se
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  authenticationStoreService = inject(AuthenticationStoreService);
+  router = inject(Router);
 
   @Input() showContacts = true;
 
-  profileImage = 'https://picsum.photos/200';
+  profileImage = signal('');
+  username = signal('');
   suche = '';
 
   protected readonly EAppPaths = EAppPaths;
 
-  constructor(private authenticationStoreService: AuthenticationStoreService, private router: Router) {
+  ngOnInit(): void {
+    this.profileImage.set(this.authenticationStoreService.profileImageSrc());
+    this.username.set(this.authenticationStoreService.username());
   }
+
   logout() {
     this.authenticationStoreService.logout();
     this.router.navigate(['/login']);

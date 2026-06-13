@@ -1,4 +1,5 @@
 <div class="background">
+  <app-header [showContacts]="true"></app-header>
   <div class="container">
     <h1>Einstellungen</h1>
     <div class="d-flex flex-column mb-3">
@@ -17,18 +18,100 @@
         Profilbild auswählen
       </button>
     </div>
-    <div class="d-flex flex-column mt-3 mb-2">
+    <div class="d-flex flex-column mt-3 mb-2 p-3 gap-2 card">
       <label for="nutzername">Nutzername ändern</label>
-      <input id="nutzername" type="text" [(ngModel)]="username" />
-    </div>
-    <div class="d-flex flex-row justify-content-between gap-3">
-      <div class="d-flex flex-column mb-3 w-75">
-        <label for="passwort">Passwort</label>
-        <input id="passwort" type="password" [(ngModel)]="confirmPassword" />
+      <input id="nutzername" type="text" [formControl]="usernameFC" />
+      <div class="text-danger">
+        @if (usernameFC.invalid && usernameFC.touched) {
+          @if (usernameFC.errors?.['minlength']) {
+            <span>Nutzername ist zu kurz.</span>
+          }
+          @if (usernameFC.errors?.['maxlength']) {
+            <span>Nutzername ist zu lang.</span>
+          }
+        }
+        @if (usernameAvailable()) {
+          <span>Nutzername ist bereits vorhanden.</span>
+        }
       </div>
-      <div class="d-flex flex-column mb-3 w-75">
-        <label for="passwortWiederholen">Passwort wiederholen</label>
-        <input id="passwortWiederholen" type="password" [(ngModel)]="password" />
+    </div>
+    <div class="d-flex flex-column mt-3 mb-2 p-3 card">
+      <div class="d-flex flex-column mb-3 gap-2">
+        <label for="currentPasswort">aktuelles Passwort</label>
+        <div class="password-wrapper">
+          <input id="currentPasswort" type="password" [formControl]="currentPasswordFC" />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="showCurrentPassword = !showCurrentPassword"
+          >
+            <ng-icon [name]="showCurrentPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+          </button>
+        </div>
+      </div>
+      <div class="d-flex flex-column justify-content-between gap-1 mb-3">
+        <div class="d-flex flex-row justify-content-between gap-3">
+          <div class="d-flex flex-column w-75">
+            <label for="passwort">Passwort</label>
+            <div class="password-wrapper">
+              <input
+                class="form-control"
+                [formControl]="passwordFC"
+                [type]="showPassword ? 'text' : 'password'"
+                id="passwort"
+              />
+              <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
+                <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+              </button>
+            </div>
+          </div>
+          <div class="d-flex flex-column w-75">
+            <label for="passwortWiederholen">Passwort wiederholen</label>
+            <div class="password-wrapper">
+              <input
+                class="form-control"
+                [formControl]="confirmPasswordFC"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="passwortWiederholen"
+                [readonly]="passwordFC.invalid"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="showConfirmPassword = !showConfirmPassword"
+              >
+                <ng-icon
+                  [name]="showConfirmPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+                ></ng-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="text-danger mb-3">
+            @if (passwordFC.invalid && passwordFC.touched) {
+              @if (passwordFC.errors?.['minlength']) {
+                <span>Passwort ist zu kurz.</span><br />
+              }
+              @if (passwordFC.errors?.['maxlength']) {
+                <span>Passwort ist zu lang.</span><br />
+              }
+              @if (passwordFC.errors?.['pattern']) {
+                <span
+                  >Das Passwort muss Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen
+                  (#?!&#64;$%^&*-) enthalten.</span
+                >
+                <br />
+              }
+            }
+            @if (passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched) {
+              <span class="text-danger">Die Passwörter stimmen nicht überein.</span>
+            }
+            @if (errorOccured()) {
+              <span class="text-danger">Ein Fehler ist aufgetreten. Versuche es erneut.</span>
+            }
+          </div>
+        </div>
       </div>
     </div>
     <button class="btn btn-primary mb-2" (click)="save()">Speichern</button>

@@ -1,19 +1,23 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   AuthenticationControllerService,
-  LoginRequest, LoginResponse,
+  LoginRequest,
+  LoginResponse,
   UsernameAvailabilityResponse,
-  UserResponse
 } from '../generated/api';
-import {Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  constructor(private authenticationControllerService: AuthenticationControllerService) {}
+  authenticationControllerService = inject(AuthenticationControllerService);
 
-  public register(username: string, password: string, profileImage?: Blob): Observable<LoginResponse> {
+  public register(
+    username: string,
+    password: string,
+    profileImage?: Blob,
+  ): Observable<LoginResponse> {
     return this.authenticationControllerService.register(username, password, profileImage);
   }
 

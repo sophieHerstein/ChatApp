@@ -6,26 +6,29 @@
       <input id="nutzername" type="text" [formControl]="usernameFC" />
     </div>
     <div class="d-flex flex-column mb-4">
-        <label for="passwort">Passwort</label>
-        <div class="password-wrapper">
-          <input
-            class="form-control"
-            [formControl]="passwordFC"
-            [type]="showPassword ? 'text' : 'password'"
-            id="passwort"
-          />
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="showPassword = !showPassword">
-            <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
-          </button>
-    </div>
+      <label for="passwort">Passwort</label>
+      <div class="password-wrapper">
+        <input
+          class="form-control"
+          [formControl]="passwordFC"
+          [type]="showPassword ? 'text' : 'password'"
+          id="passwort"
+        />
+        <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
+          <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+        </button>
+      </div>
       @if (errorOccured()) {
         <span class="text-danger">Login war nicht erfolgreich. Versuche es nochmal.</span>
       }
     </div>
-    <button [disabled]="usernameFC.invalid || passwordFC.invalid" class="btn btn-primary mb-2" (click)="login()">Anmelden</button>
+    <button
+      [disabled]="usernameFC.invalid || passwordFC.invalid"
+      class="btn btn-primary mb-2"
+      (click)="login()"
+    >
+      Anmelden
+    </button>
     <span>Noch kein Account? <a [routerLink]="'/' + EAppPaths.Register">Registrieren</a></span>
   </div>
 </div>

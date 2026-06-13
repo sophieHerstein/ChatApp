@@ -1,38 +1,56 @@
-import { Component, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, signal, ViewEncapsulation, OnInit } from '@angular/core';
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  ValidationErrors, ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { EAppPaths } from '../../app.paths';
-import {Router, RouterLink} from '@angular/router';
-import {AuthenticationService} from '../../services/authentication.service';
-import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs';
-import {confirmPasswordValidator} from '../../utils';
-import {NgIcon, provideIcons} from '@ng-icons/core';
-import {bootstrapEye, bootstrapEyeSlash} from '@ng-icons/bootstrap-icons';
-import {LoginResponse} from '../../generated/api';
-import {AuthenticationStoreService} from '../../services/authentication-store.service';
+import { Router, RouterLink } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
+import { confirmPasswordValidator } from '../../utils';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { bootstrapEye, bootstrapEyeSlash } from '@ng-icons/bootstrap-icons';
+import { LoginResponse } from '../../generated/api';
+import { AuthenticationStoreService } from '../../services/authentication-store.service';
 
 @Component({
   selector: 'app-registration-screen',
   imports: [ReactiveFormsModule, FormsModule, RouterLink, NgIcon],
-  viewProviders:[provideIcons({bootstrapEyeSlash, bootstrapEye})],
+  viewProviders: [provideIcons({ bootstrapEyeSlash, bootstrapEye })],
   templateUrl: './registration-screen.component.html',
   styleUrl: './registration-screen.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
-export class RegistrationScreenComponent {
+export class RegistrationScreenComponent implements OnInit {
+  authenticationStoreService = inject(AuthenticationStoreService);
+  authenticationService = inject(AuthenticationService);
+  router = inject(Router);
+
   passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
 
-  usernameFC: FormControl = new FormControl('', [Validators.required, Validators.minLength(3),Validators.maxLength(50)]);
-  passwordFC: FormControl = new FormControl( '', [Validators.required, Validators.minLength(8),Validators.maxLength(100), Validators.pattern(this.passwordRegex)]);
-  confirmPasswordFC: FormControl = new FormControl('', [Validators.required, Validators.minLength(8),Validators.maxLength(100)]);
-  passwordFG: FormGroup = new FormGroup({password: this.passwordFC, confirmPassword: this.confirmPasswordFC}, confirmPasswordValidator);
+  usernameFC: FormControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(3),
+    Validators.maxLength(50),
+  ]);
+  passwordFC: FormControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(8),
+    Validators.maxLength(100),
+    Validators.pattern(this.passwordRegex),
+  ]);
+  confirmPasswordFC: FormControl = new FormControl('', [
+    Validators.required,
+    Validators.minLength(8),
+    Validators.maxLength(100),
+  ]);
+  passwordFG: FormGroup = new FormGroup(
+    { password: this.passwordFC, confirmPassword: this.confirmPasswordFC },
+    confirmPasswordValidator,
+  );
 
   errorOccured = signal<boolean>(false);
 
@@ -46,16 +64,24 @@ export class RegistrationScreenComponent {
 
   protected readonly EAppPaths = EAppPaths;
 
-  constructor(private authenticationService: AuthenticationService, private authenticationStoreService: AuthenticationStoreService, private router: Router) {
-    this.usernameFC.valueChanges.pipe(
-      debounceTime(400),
-      distinctUntilChanged(),
-      switchMap(username =>
-        this.authenticationService.isUsernameAvailable(username)
+  ngOnInit() {
+    this.usernameFC.valueChanges
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        map((username) => username?.trim() ?? ''),
+        tap((username) => {
+          if (!username) {
+            this.usernameAvailable.set(false);
+          }
+        }),
+        filter((username) => username.length >= 3),
+        switchMap((username) => this.authenticationService.isUsernameAvailable(username)),
       )
-    ).subscribe(result => {
-      this.usernameAvailable.set(!!result.available);
-    });
+      .subscribe((result) => {
+        console.log(result.available);
+        this.usernameAvailable.set(!result.available);
+      });
   }
 
   register() {
@@ -65,9 +91,9 @@ export class RegistrationScreenComponent {
       .subscribe({
         next: (response: LoginResponse) => {
           this.authenticationStoreService.setLogin(response);
-          this.router.navigate(["/" + EAppPaths.Contacts]);
+          this.router.navigate(['/' + EAppPaths.Contacts]);
         },
-        error: async (err) => {
+        error: () => {
           this.errorOccured.set(true);
         },
       });
