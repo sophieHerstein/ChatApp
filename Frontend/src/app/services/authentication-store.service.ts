@@ -52,6 +52,11 @@ export class AuthenticationStoreService {
     localStorage.removeItem('currentUser');
   }
 
+  updateCurrentUser(user: UserResponse) {
+    this.currentUser.set(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
   private loadUserFromStorage(): UserResponse | null {
     const userJson = localStorage.getItem('currentUser');
 

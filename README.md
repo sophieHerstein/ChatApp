@@ -4,11 +4,11 @@
 
 Unsubscribe und sowas
 
-duplicated code settings und registrierung
+duplicated code settings und registrierung (+ Meldungen bei settings überarbeiten)
 
 dokumentation
 
-- Bearbeiten der UserData (Backend)
+User aus Backend und nicht local storage laden
 
 - UserData Stuff ins Frontend bringen
 
