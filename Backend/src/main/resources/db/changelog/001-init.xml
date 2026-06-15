@@ -6,7 +6,7 @@
         xsi:schemaLocation="
             http://www.liquibase.org/xml/ns/dbchangelog
             https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-    <changeSet id="001-init_001" author="sophie">
+    <changeSet id="001-init" author="sophie">
         <createTable tableName="app_user">
             <column name="id" type="UUID">
                 <constraints primaryKey="true"
@@ -26,5 +26,38 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <changeSet id="002-create-contact" author="sophie">
+            <createTable tableName="contact">
+                <column name="id" type="UUID">
+                    <constraints primaryKey="true" nullable="false"/>
+                </column>
+                <column name="owner_user_id" type="UUID">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="contact_user_id" type="UUID">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="TIMESTAMP">
+                    <constraints nullable="false"/>
+                </column>
+            </createTable>
+            <addForeignKeyConstraint
+                    baseTableName="contact"
+                    baseColumnNames="owner_user_id"
+                    referencedTableName="app_user"
+                    referencedColumnNames="id"
+                    constraintName="fk_contact_owner_user"/>
+            <addForeignKeyConstraint
+                    baseTableName="contact"
+                    baseColumnNames="contact_user_id"
+                    referencedTableName="app_user"
+                    referencedColumnNames="id"
+                    constraintName="fk_contact_contact_user"/>
+            <addUniqueConstraint
+                    tableName="contact"
+                    columnNames="owner_user_id, contact_user_id"
+                    constraintName="uk_contact_owner_contact"/>
     </changeSet>
 </databaseChangeLog>

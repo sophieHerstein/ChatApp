@@ -3,6 +3,7 @@ package de.sophieherstein.chat_app_backend.user;
 import de.sophieherstein.chat_app_backend.user.dto.UpdatePasswordRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UpdateUsernameRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UserResponse;
+import de.sophieherstein.chat_app_backend.user.dto.UserSearchResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -60,5 +63,14 @@ public class UserController {
             @RequestPart MultipartFile profileImage
     ) {
         return userService.updateProfileImage(authentication, profileImage);
+    }
+
+    @GetMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<UserSearchResponse> getUsers(
+            Authentication authentication
+    ) {
+        return userService.getAllUsers(authentication);
     }
 }

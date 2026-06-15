@@ -1,12 +1,20 @@
 package de.sophieherstein.chat_app_backend.user;
 
+import de.sophieherstein.chat_app_backend.contact.ContactRepository;
 import de.sophieherstein.chat_app_backend.exceptions.InvalidCredentialsException;
 import de.sophieherstein.chat_app_backend.exceptions.UsernameAlreadyTakenException;
 import de.sophieherstein.chat_app_backend.file.ProfileImageStorageService;
 import de.sophieherstein.chat_app_backend.user.dto.UpdatePasswordRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UpdateUsernameRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UserResponse;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import de.sophieherstein.chat_app_backend.user.dto.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProfileImageStorageService profileImageStorageService;
+    private final ContactRepository contactRepository;
 
     @Transactional(readOnly = true)
     public UserResponse getMe(Authentication authentication) {
@@ -62,6 +71,38 @@ public class UserService {
         user.changeProfileImageUrl(profileImageUrl);
 
         return toUserResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserSearchResponse> getAllUsers(Authentication authentication) {
+
+        User currentUser = getCurrentUser(authentication);
+
+        Set<UUID> contactIds = contactRepository
+                .findAllByOwnerUserId(currentUser.getId())
+                .stream()
+                .map(contact -> contact.getContactUser().getId())
+                .collect(Collectors.toSet());
+
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .map(user -> new UserSearchResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getProfileImageUrl(),
+                        contactIds.contains(user.getId())
+                ))
+                .sorted(
+                        Comparator
+                                .comparing(UserSearchResponse::contact)
+                                .reversed()
+                                .thenComparing(
+                                        UserSearchResponse::username,
+                                        String.CASE_INSENSITIVE_ORDER
+                                )
+                )
+                .toList();
     }
 
     private User getCurrentUser(Authentication authentication) {
