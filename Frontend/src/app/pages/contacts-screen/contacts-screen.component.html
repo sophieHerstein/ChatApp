@@ -2,17 +2,16 @@
   <app-header
     [isSearching]="isSearching()"
     (isSearchingOutput)="isSearchingStatus($event)"
-    (search)="searchContact($event)"
-    [showContacts]="false">
+    (searching)="searchContact($event)"
+    [showContacts]="false"
+  >
   </app-header>
 
   <div class="container">
     <h1>Kontakte</h1>
 
     @if (errorOccured()) {
-      <div class="alert alert-danger">
-        Es ist ein Fehler aufgetreten.
-      </div>
+      <div class="alert alert-danger">Es ist ein Fehler aufgetreten.</div>
     }
 
     @if (!isSearching()) {
@@ -20,8 +19,8 @@
         @for (user of visibleContactUsers(); track user.id) {
           <div
             class="contact contact-user card p-3 mb-3"
-            [routerLink]="['/' + EAppPaths.Chat, user.id]">
-
+            [routerLink]="['/' + EAppPaths.Chat, user.id]"
+          >
             <div class="d-flex gap-4 align-items-center justify-content-between">
               <div class="d-flex gap-4 align-items-center">
                 <img
@@ -39,7 +38,8 @@
               <button
                 type="button"
                 class="btn btn-outline-danger"
-                (click)="removeContact(user, $event)">
+                (click)="removeContact(user, $event)"
+              >
                 <ng-icon name="bootstrapPersonDash"></ng-icon>
                 Entfernen
               </button>
@@ -60,8 +60,8 @@
         @for (user of visibleContactUsers(); track user.id) {
           <div
             class="contact contact-user card p-3 mb-3"
-            [routerLink]="['/' + EAppPaths.Chat, user.id]">
-
+            [routerLink]="['/' + EAppPaths.Chat, user.id]"
+          >
             <div class="d-flex gap-4 align-items-center justify-content-between">
               <div class="d-flex gap-4 align-items-center">
                 <img
@@ -85,7 +85,8 @@
               <button
                 type="button"
                 class="btn btn-outline-danger"
-                (click)="removeContact(user, $event)">
+                (click)="removeContact(user, $event)"
+              >
                 <ng-icon name="bootstrapPersonDash"></ng-icon>
                 Entfernen
               </button>
@@ -118,7 +119,8 @@
               <button
                 type="button"
                 class="btn btn-outline-primary"
-                (click)="addContact(user, $event)">
+                (click)="addContact(user, $event)"
+              >
                 <ng-icon name="bootstrapPersonPlus"></ng-icon>
                 Hinzufügen
               </button>

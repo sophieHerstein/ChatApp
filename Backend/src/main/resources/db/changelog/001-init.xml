@@ -60,4 +60,80 @@
                     columnNames="owner_user_id, contact_user_id"
                     constraintName="uk_contact_owner_contact"/>
     </changeSet>
+    <changeSet id="003-create-chat" author="sophie">
+
+        <createTable tableName="chat">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="chat_participant">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="chat_message">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sender_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="read" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="chat_participant"
+                baseColumnNames="chat_id"
+                referencedTableName="chat"
+                referencedColumnNames="id"
+                constraintName="fk_chat_participant_chat"/>
+        <addForeignKeyConstraint
+                baseTableName="chat_participant"
+                baseColumnNames="user_id"
+                referencedTableName="app_user"
+                referencedColumnNames="id"
+                constraintName="fk_chat_participant_user"/>
+        <addForeignKeyConstraint
+                baseTableName="chat_message"
+                baseColumnNames="chat_id"
+                referencedTableName="chat"
+                referencedColumnNames="id"
+                constraintName="fk_chat_message_chat"/>
+        <addForeignKeyConstraint
+                baseTableName="chat_message"
+                baseColumnNames="sender_user_id"
+                referencedTableName="app_user"
+                referencedColumnNames="id"
+                constraintName="fk_chat_message_sender"/>
+        <addUniqueConstraint
+                tableName="chat_participant"
+                columnNames="chat_id, user_id"
+                constraintName="uk_chat_participant_chat_user"/>
+        <createIndex
+                tableName="chat_message"
+                indexName="idx_chat_message_chat_created_at">
+            <column name="chat_id"/>
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

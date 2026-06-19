@@ -20,7 +20,6 @@ import {
   catchError,
   map,
   switchMap,
-  last,
   concat,
   EMPTY,
   Observable,

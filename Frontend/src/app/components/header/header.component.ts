@@ -17,7 +17,7 @@ import {
   bootstrapPersonFillGear,
   bootstrapPersonFillX,
   bootstrapSearch,
-  bootstrapX
+  bootstrapX,
 } from '@ng-icons/bootstrap-icons';
 import { Router, RouterLink } from '@angular/router';
 import { AuthenticationStoreService } from '../../services/authentication-store.service';
@@ -31,7 +31,7 @@ import { AuthenticationStoreService } from '../../services/authentication-store.
       bootstrapPersonFillX,
       bootstrapSearch,
       bootstrapHouseFill,
-      bootstrapX
+      bootstrapX,
     }),
   ],
   templateUrl: './header.component.html',
@@ -42,7 +42,7 @@ export class HeaderComponent implements OnInit {
   authenticationStoreService = inject(AuthenticationStoreService);
   router = inject(Router);
 
-  @Output() search = new EventEmitter<string | null>();
+  @Output() searching = new EventEmitter<string | null>();
   @Output() isSearchingOutput = new EventEmitter<boolean>();
 
   @Input() showContacts = true;
@@ -59,7 +59,7 @@ export class HeaderComponent implements OnInit {
     this.profileImage.set(this.authenticationStoreService.profileImageSrc());
     this.username.set(this.authenticationStoreService.username());
     this.searchWord.valueChanges.subscribe((value: string | null) => {
-      this.search.emit(value);
+      this.searching.emit(value);
     });
   }
 
