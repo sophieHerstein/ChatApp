@@ -6,7 +6,7 @@
         xsi:schemaLocation="
             http://www.liquibase.org/xml/ns/dbchangelog
             https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-    <changeSet id="001-init" author="sophie">
+    <changeSet id="001-init_001" author="sophie">
         <createTable tableName="app_user">
             <column name="id" type="UUID">
                 <constraints primaryKey="true"

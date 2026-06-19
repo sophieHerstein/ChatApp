@@ -1,9 +1,9 @@
-import {inject, Injectable} from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   UserControllerService,
   UserResponse,
   UpdateUsernameRequest,
-  UpdatePasswordRequest
+  UpdatePasswordRequest,
 } from '../generated/api';
 import { Observable } from 'rxjs';
 
@@ -17,8 +17,7 @@ export class UserService {
     return this.userControllerService.updateProfileImage(profileImage);
   }
 
-  updateUsername(updateUsernameRequest: UpdateUsernameRequest):
-  Observable<UserResponse> {
+  updateUsername(updateUsernameRequest: UpdateUsernameRequest): Observable<UserResponse> {
     return this.userControllerService.updateUsername(updateUsernameRequest);
   }
 

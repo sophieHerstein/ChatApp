@@ -12,10 +12,22 @@ import { AuthenticationStoreService } from '../../services/authentication-store.
 import { Router } from '@angular/router';
 import { confirmPasswordValidator } from '../../utils';
 import { AuthenticationService } from '../../services/authentication.service';
-import { debounceTime, distinctUntilChanged, filter, tap, catchError, map, switchMap, last, concat, EMPTY, Observable  } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  tap,
+  catchError,
+  map,
+  switchMap,
+  last,
+  concat,
+  EMPTY,
+  Observable,
+} from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapEye, bootstrapEyeSlash } from '@ng-icons/bootstrap-icons';
-import {UserService} from '../../services/user.service';
+import { UserService } from '../../services/user.service';
 import { UserResponse } from '../../generated/api';
 
 @Component({
@@ -134,25 +146,16 @@ export class SettingsComponent implements OnInit {
 
     const newUsername = this.usernameFC.value?.trim();
 
-    if (
-      newUsername &&
-      newUsername.toLowerCase() !== currentUser.username?.toLowerCase()
-    ) {
-      requests.push(
-        this.userService.updateUsername({ username: newUsername })
-      );
+    if (newUsername && newUsername.toLowerCase() !== currentUser.username?.toLowerCase()) {
+      requests.push(this.userService.updateUsername({ username: newUsername }));
     }
 
     if (this.profileImage()) {
-      requests.push(
-        this.userService.updateProfileImage(this.profileImage()!)
-      );
+      requests.push(this.userService.updateProfileImage(this.profileImage()!));
     }
 
     const wantsToChangePassword =
-      !!this.currentPasswordFC.value ||
-      !!this.passwordFC.value ||
-      !!this.confirmPasswordFC.value;
+      !!this.currentPasswordFC.value || !!this.passwordFC.value || !!this.confirmPasswordFC.value;
 
     if (wantsToChangePassword) {
       if (this.passwordFG.invalid || this.currentPasswordFC.invalid) {
@@ -164,7 +167,7 @@ export class SettingsComponent implements OnInit {
         this.userService.updatePassword({
           currentPassword: this.currentPasswordFC.value,
           newPassword: this.passwordFC.value,
-        })
+        }),
       );
     }
 
@@ -172,22 +175,24 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    concat(...requests).pipe(
-      tap((result) => {
-        if (result) {
-          this.authenticationStoreService.updateCurrentUser(result as UserResponse);
-        }
-      }),
-      catchError((error) => {
-        console.error(error);
-        this.errorOccured.set(true);
-        return EMPTY;
-      })
-    ).subscribe({
-      complete: () => {
-        this.profileImage.set(null);
-        this.currentProfileImage.set(this.authenticationStoreService.profileImageSrc());
-      }
-    });
+    concat(...requests)
+      .pipe(
+        tap((result) => {
+          if (result) {
+            this.authenticationStoreService.updateCurrentUser(result as UserResponse);
+          }
+        }),
+        catchError((error) => {
+          console.error(error);
+          this.errorOccured.set(true);
+          return EMPTY;
+        }),
+      )
+      .subscribe({
+        complete: () => {
+          this.profileImage.set(null);
+          this.currentProfileImage.set(this.authenticationStoreService.profileImageSrc());
+        },
+      });
   }
 }

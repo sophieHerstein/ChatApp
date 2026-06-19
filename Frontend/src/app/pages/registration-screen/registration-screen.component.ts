@@ -79,7 +79,6 @@ export class RegistrationScreenComponent implements OnInit {
         switchMap((username) => this.authenticationService.isUsernameAvailable(username)),
       )
       .subscribe((result) => {
-        console.log(result.available);
         this.usernameAvailable.set(!result.available);
       });
   }

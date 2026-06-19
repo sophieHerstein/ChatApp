@@ -5,7 +5,12 @@
   </div>
   <div class="d-flex align-items-center gap-2">
     <ng-icon class="text-secondary" name="bootstrapSearch"></ng-icon>
-    <input type="text" [(ngModel)]="suche" placeholder="Suche..." />
+    <input [formControl]="searchWord" type="text" placeholder="Suche..." />
+    @if (isSearching) {
+      <button class="btn btn-secondary" (click)="quitSearch()">
+        <ng-icon class="text-secondary" name="bootstrapX"></ng-icon>
+      </button>
+    }
   </div>
   <div class="d-flex align-items-center gap-4">
     @if (showContacts) {

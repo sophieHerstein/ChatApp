@@ -13,35 +13,38 @@ app-contacts-screen {
       font-weight: 50;
     }
 
-    &:hover {
-      cursor: pointer;
-      transform: translateY(-4px);
-      box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.15),
-        0 0 20px rgba(255, 255, 255, 0.15);
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.6);
-    }
+    &.contact-user {
 
-    &.unread {
-      border-width: 3px;
-      border-color: rgba(255, 255, 255, 0.7);
-      .contact-name,
-      .contact-last-message {
-        font-weight: bold;
+      &:hover {
+        cursor: pointer;
+        transform: translateY(-4px);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.15),
+          0 0 20px rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.6);
       }
-    }
 
-    &.unread::before {
-      content: '';
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: #7c3aed;
-      box-shadow: 0 0 12px #7c3aed;
+      &.unread {
+        border-width: 3px;
+        border-color: rgba(255, 255, 255, 0.7);
+        .contact-name,
+        .contact-last-message {
+          font-weight: bold;
+        }
+      }
+
+      &.unread::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #7c3aed;
+        box-shadow: 0 0 12px #7c3aed;
+      }
     }
   }
 }

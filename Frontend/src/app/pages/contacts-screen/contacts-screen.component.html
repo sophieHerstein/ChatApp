@@ -1,28 +1,135 @@
 <div class="background">
-  <app-header [showContacts]="false"></app-header>
+  <app-header
+    [isSearching]="isSearching()"
+    (isSearchingOutput)="isSearchingStatus($event)"
+    (search)="searchContact($event)"
+    [showContacts]="false">
+  </app-header>
+
   <div class="container">
     <h1>Kontakte</h1>
-    <button class="btn btn-secondary mb-3" (click)="addContact()">
-      <ng-icon name="bootstrapPlusCircle"></ng-icon>
-      Kontakt hinzufügen
-    </button>
-    @for (contact of contacts; track contact.id) {
-      <div
-        class="contact card p-3 mb-3"
-        [ngClass]="{ unread: contact.messageUnread }"
-        [routerLink]="['/' + EAppPaths.Chat, contact.id]"
-      >
-        <div class="d-flex gap-4 align-items-center">
-          <img ngSrc="{{ contact.image }}" alt="Avatar" width="50" height="50" />
-          <span class="contact-name">{{ contact.name }}</span>
-        </div>
-        <div class="d-flex gap-4 align-items-center mt-2 justify-content-between">
-          <span class="text-secondary contact-last-message">{{ contact.lastMessage }}</span>
-          <span class="text-secondary contact-last-message-time">{{
-            contact.lastMessageTime
-          }}</span>
-        </div>
+
+    @if (errorOccured()) {
+      <div class="alert alert-danger">
+        Es ist ein Fehler aufgetreten.
       </div>
+    }
+
+    @if (!isSearching()) {
+      @if (visibleContactUsers().length > 0) {
+        @for (user of visibleContactUsers(); track user.id) {
+          <div
+            class="contact contact-user card p-3 mb-3"
+            [routerLink]="['/' + EAppPaths.Chat, user.id]">
+
+            <div class="d-flex gap-4 align-items-center justify-content-between">
+              <div class="d-flex gap-4 align-items-center">
+                <img
+                  [ngSrc]="getProfileImageUrl(user)"
+                  (error)="onImageError($event)"
+                  alt="Avatar"
+                  width="50"
+                  height="50"
+                  class="rounded-circle"
+                />
+
+                <span class="contact-name">{{ user.username }}</span>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="removeContact(user, $event)">
+                <ng-icon name="bootstrapPersonDash"></ng-icon>
+                Entfernen
+              </button>
+            </div>
+          </div>
+        }
+      } @else {
+        <p class="text-secondary">
+          Du hast noch keine Kontakte. Suche nach Nutzern, um Kontakte hinzuzufügen.
+        </p>
+      }
+    }
+
+    @if (isSearching()) {
+      @if (visibleContactUsers().length > 0) {
+        <h5 class="mt-3 mb-2 text-secondary">Meine Kontakte</h5>
+
+        @for (user of visibleContactUsers(); track user.id) {
+          <div
+            class="contact contact-user card p-3 mb-3"
+            [routerLink]="['/' + EAppPaths.Chat, user.id]">
+
+            <div class="d-flex gap-4 align-items-center justify-content-between">
+              <div class="d-flex gap-4 align-items-center">
+                <img
+                  [ngSrc]="getProfileImageUrl(user)"
+                  (error)="onImageError($event)"
+                  alt="Avatar"
+                  width="50"
+                  height="50"
+                  class="rounded-circle"
+                />
+
+                <div>
+                  <span class="contact-name">{{ user.username }}</span>
+                  <div class="text-success small d-flex align-items-center gap-1">
+                    <ng-icon name="bootstrapCheckCircle"></ng-icon>
+                    Bereits Kontakt
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="removeContact(user, $event)">
+                <ng-icon name="bootstrapPersonDash"></ng-icon>
+                Entfernen
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      @if (visibleOtherUsers().length > 0) {
+        <hr class="my-4" />
+
+        <h5 class="mt-3 mb-2 text-secondary">Weitere Nutzer</h5>
+
+        @for (user of visibleOtherUsers(); track user.id) {
+          <div class="contact card p-3 mb-3">
+            <div class="d-flex gap-4 align-items-center justify-content-between">
+              <div class="d-flex gap-4 align-items-center">
+                <img
+                  [ngSrc]="getProfileImageUrl(user)"
+                  (error)="onImageError($event)"
+                  alt="Avatar"
+                  width="50"
+                  height="50"
+                  class="rounded-circle"
+                />
+
+                <span class="contact-name">{{ user.username }}</span>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="addContact(user, $event)">
+                <ng-icon name="bootstrapPersonPlus"></ng-icon>
+                Hinzufügen
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      @if (visibleContactUsers().length === 0 && visibleOtherUsers().length === 0) {
+        <p class="text-secondary">Keine Nutzer gefunden.</p>
+      }
     }
   </div>
 </div>
