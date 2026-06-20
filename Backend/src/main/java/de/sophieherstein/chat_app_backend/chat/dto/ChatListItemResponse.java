@@ -11,6 +11,8 @@ public record ChatListItemResponse(
         String lastMessage,
         LocalDateTime lastMessageTime,
         long unreadCount,
-        boolean contact
+        boolean contact,
+        boolean online,
+        LocalDateTime lastSeenAt
 ) {
 }

@@ -1,7 +1,7 @@
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import { Component, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   bootstrapArrowLeft,
@@ -13,6 +13,12 @@ import { ChatListItemResponse, MessageResponse } from '../../generated/api';
 import { EAppPaths } from '../../app.paths';
 import { AuthenticationStoreService } from '../../services/authentication-store.service';
 import { ChatService } from '../../services/chat.service';
+import { OnlineStatusStoreService } from '../../services/online-status-store.service';
+
+type ChatWithPresence = ChatListItemResponse & {
+  online?: boolean;
+  lastSeenAt?: string;
+};
 
 @Component({
   selector: 'app-chat-screen',
@@ -34,6 +40,7 @@ export class ChatScreenComponent implements OnInit {
   private router = inject(Router);
   private chatService = inject(ChatService);
   private authenticationStoreService = inject(AuthenticationStoreService);
+  private onlineStatusStore = inject(OnlineStatusStoreService);
 
   chatId = signal<string | null>(null);
   chat = signal<ChatListItemResponse | null>(null);
@@ -41,10 +48,7 @@ export class ChatScreenComponent implements OnInit {
   errorOccured = signal<boolean>(false);
   isSending = signal<boolean>(false);
 
-  messageFC = new FormControl('', [
-    Validators.required,
-    Validators.maxLength(5000),
-  ]);
+  messageFC = new FormControl('', [Validators.required, Validators.maxLength(5000)]);
 
   protected readonly EAppPaths = EAppPaths;
 
@@ -68,11 +72,7 @@ export class ChatScreenComponent implements OnInit {
 
     this.chatService.getChats().subscribe({
       next: (chats) => {
-        console.log('route chatId:', chatId);
-        console.log('chats:', chats);
-
-        const chat = chats.find((item) => item.chatId === chatId);
-        console.log('matched chat:', chat);
+        const chat = chats.find((item) => item.chatId === chatId) as ChatWithPresence | undefined;
 
         if (!chat) {
           this.errorOccured.set(true);
@@ -80,6 +80,13 @@ export class ChatScreenComponent implements OnInit {
         }
 
         this.chat.set(chat);
+        if (chat.otherUserId) {
+          this.onlineStatusStore.initializeStatus(
+            chat.otherUserId,
+            chat.online ?? false,
+            chat.lastSeenAt,
+          );
+        }
       },
       error: (error) => {
         console.error(error);
@@ -158,8 +165,51 @@ export class ChatScreenComponent implements OnInit {
     return this.chat()?.username ?? 'Chat';
   }
 
-  getContactLastSeen(): string {
-    return 'unbekannt';
+  getContactPresence(): string {
+    const userId = this.chat()?.otherUserId;
+
+    if (!userId) {
+      return 'Zuletzt online unbekannt';
+    }
+
+    const status = this.onlineStatusStore.getStatus(userId);
+
+    if (status?.online) {
+      return 'Online';
+    }
+
+    if (!status?.lastSeenAt) {
+      return 'Zuletzt online unbekannt';
+    }
+
+    return `Zuletzt online ${this.formatLastSeen(status.lastSeenAt)}`;
+  }
+
+  private formatLastSeen(value: string): string {
+    const lastSeen = new Date(value);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastSeenDay = new Date(lastSeen.getFullYear(), lastSeen.getMonth(), lastSeen.getDate());
+    const dayDifference = Math.round((today.getTime() - lastSeenDay.getTime()) / 86_400_000);
+    const time = lastSeen.toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    if (dayDifference === 0) {
+      return `heute, ${time}`;
+    }
+
+    if (dayDifference === 1) {
+      return `gestern, ${time}`;
+    }
+
+    const date = lastSeen.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    return `${date}, ${time}`;
   }
 
   onImageError(event: Event): void {

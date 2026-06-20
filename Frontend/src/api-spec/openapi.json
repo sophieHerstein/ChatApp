@@ -1,1 +1,397 @@
-{"openapi":"3.1.0","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/api/contacts/{userId}":{"post":{"tags":["contact-controller"],"operationId":"addContact","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"204":{"description":"No Content"}}},"delete":{"tags":["contact-controller"],"operationId":"removeContact","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"204":{"description":"No Content"}}}},"/api/chats/{chatId}/messages":{"get":{"tags":["chat-controller"],"operationId":"getMessages","parameters":[{"name":"chatId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/MessageResponse"}}}}}}},"post":{"tags":["chat-controller"],"operationId":"sendMessage","parameters":[{"name":"chatId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SendMessageRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MessageResponse"}}}}}}},"/api/chats/direct/{userId}":{"post":{"tags":["chat-controller"],"operationId":"createDirectChat","parameters":[{"name":"userId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DirectChatResponse"}}}}}}},"/api/auth/register":{"post":{"tags":["authentication-controller"],"operationId":"register","requestBody":{"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/RegisterRequest"}}}},"responses":{"201":{"description":"Created","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginResponse"}}}}}}},"/api/auth/login":{"post":{"tags":["authentication-controller"],"operationId":"login","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginResponse"}}}}}}},"/api/users/me/username":{"patch":{"tags":["user-controller"],"operationId":"updateUsername","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UpdateUsernameRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/me/profile-image":{"patch":{"tags":["user-controller"],"operationId":"updateProfileImage","requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"profileImage":{"type":"string","format":"binary"}},"required":["profileImage"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/users/me/password":{"patch":{"tags":["user-controller"],"operationId":"updatePassword","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UpdatePasswordRequest"}}},"required":true},"responses":{"204":{"description":"No Content"}}}},"/api/chats/{chatId}/read":{"patch":{"tags":["chat-controller"],"operationId":"markChatAsRead","parameters":[{"name":"chatId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"204":{"description":"No Content"}}}},"/api/users":{"get":{"tags":["user-controller"],"operationId":"getUsers","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/UserSearchResponse"}}}}}}}},"/api/users/me":{"get":{"tags":["user-controller"],"operationId":"me","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponse"}}}}}}},"/api/chats":{"get":{"tags":["chat-controller"],"operationId":"getChats","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ChatListItemResponse"}}}}}}}},"/api/auth/username-available":{"get":{"tags":["authentication-controller"],"operationId":"isUsernameAvailable","parameters":[{"name":"username","in":"query","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UsernameAvailabilityResponse"}}}}}}}},"components":{"schemas":{"SendMessageRequest":{"type":"object","properties":{"content":{"type":"string","maxLength":5000,"minLength":0}},"required":["content"]},"MessageResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"senderId":{"type":"string","format":"uuid"},"content":{"type":"string"},"createdAt":{"type":"string","format":"date-time"},"read":{"type":"boolean"}}},"DirectChatResponse":{"type":"object","properties":{"chatId":{"type":"string","format":"uuid"}}},"RegisterRequest":{"type":"object","properties":{"username":{"type":"string","maxLength":50,"minLength":3},"password":{"type":"string","maxLength":100,"minLength":8},"profileImage":{"type":"string","format":"binary"}},"required":["password","username"]},"LoginResponse":{"type":"object","properties":{"accessToken":{"type":"string"},"tokenType":{"type":"string"},"user":{"$ref":"#/components/schemas/UserResponse"}}},"UserResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"username":{"type":"string"},"profileImageUrl":{"type":"string"},"createdAt":{"type":"string","format":"date-time"}}},"LoginRequest":{"type":"object","properties":{"username":{"type":"string","minLength":1},"password":{"type":"string","minLength":1}},"required":["password","username"]},"UpdateUsernameRequest":{"type":"object","properties":{"username":{"type":"string","maxLength":50,"minLength":3}},"required":["username"]},"UpdatePasswordRequest":{"type":"object","properties":{"currentPassword":{"type":"string","minLength":1},"newPassword":{"type":"string","maxLength":100,"minLength":8}},"required":["currentPassword","newPassword"]},"UserSearchResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"username":{"type":"string"},"profileImageUrl":{"type":"string"},"contact":{"type":"boolean"}}},"ChatListItemResponse":{"type":"object","properties":{"chatId":{"type":"string","format":"uuid"},"otherUserId":{"type":"string","format":"uuid"},"username":{"type":"string"},"profileImageUrl":{"type":"string"},"lastMessage":{"type":"string"},"lastMessageTime":{"type":"string","format":"date-time"},"unreadCount":{"type":"integer","format":"int64"},"contact":{"type":"boolean"}}},"UsernameAvailabilityResponse":{"type":"object","properties":{"available":{"type":"boolean"}}}}}}
+{
+  "openapi": "3.1.0",
+  "info": { "title": "OpenAPI definition", "version": "v0" },
+  "servers": [{ "url": "http://localhost:8080", "description": "Generated server url" }],
+  "paths": {
+    "/api/contacts/{userId}": {
+      "post": {
+        "tags": ["contact-controller"],
+        "operationId": "addContact",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "delete": {
+        "tags": ["contact-controller"],
+        "operationId": "removeContact",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/chats/{chatId}/messages": {
+      "get": {
+        "tags": ["chat-controller"],
+        "operationId": "getMessages",
+        "parameters": [
+          {
+            "name": "chatId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MessageResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["chat-controller"],
+        "operationId": "sendMessage",
+        "parameters": [
+          {
+            "name": "chatId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SendMessageRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/MessageResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/direct/{userId}": {
+      "post": {
+        "tags": ["chat-controller"],
+        "operationId": "createDirectChat",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DirectChatResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["authentication-controller"],
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["authentication-controller"],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/username": {
+      "patch": {
+        "tags": ["user-controller"],
+        "operationId": "updateUsername",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateUsernameRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/profile-image": {
+      "patch": {
+        "tags": ["user-controller"],
+        "operationId": "updateProfileImage",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": { "profileImage": { "type": "string", "format": "binary" } },
+                "required": ["profileImage"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/password": {
+      "patch": {
+        "tags": ["user-controller"],
+        "operationId": "updatePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePasswordRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/chats/{chatId}/read": {
+      "patch": {
+        "tags": ["chat-controller"],
+        "operationId": "markChatAsRead",
+        "parameters": [
+          {
+            "name": "chatId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserSearchResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats": {
+      "get": {
+        "tags": ["chat-controller"],
+        "operationId": "getChats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ChatListItemResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/username-available": {
+      "get": {
+        "tags": ["authentication-controller"],
+        "operationId": "isUsernameAvailable",
+        "parameters": [
+          { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsernameAvailabilityResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SendMessageRequest": {
+        "type": "object",
+        "properties": { "content": { "type": "string", "maxLength": 5000, "minLength": 0 } },
+        "required": ["content"]
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "senderId": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "read": { "type": "boolean" }
+        }
+      },
+      "DirectChatResponse": {
+        "type": "object",
+        "properties": { "chatId": { "type": "string", "format": "uuid" } }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "maxLength": 50, "minLength": 3 },
+          "password": { "type": "string", "maxLength": 100, "minLength": 8 },
+          "profileImage": { "type": "string", "format": "binary" }
+        },
+        "required": ["password", "username"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": { "type": "string" },
+          "tokenType": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/UserResponse" }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "profileImageUrl": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "minLength": 1 },
+          "password": { "type": "string", "minLength": 1 }
+        },
+        "required": ["password", "username"]
+      },
+      "UpdateUsernameRequest": {
+        "type": "object",
+        "properties": { "username": { "type": "string", "maxLength": 50, "minLength": 3 } },
+        "required": ["username"]
+      },
+      "UpdatePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": { "type": "string", "minLength": 1 },
+          "newPassword": { "type": "string", "maxLength": 100, "minLength": 8 }
+        },
+        "required": ["currentPassword", "newPassword"]
+      },
+      "UserSearchResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "profileImageUrl": { "type": "string" },
+          "contact": { "type": "boolean" }
+        }
+      },
+      "ChatListItemResponse": {
+        "type": "object",
+        "properties": {
+          "chatId": { "type": "string", "format": "uuid" },
+          "otherUserId": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "profileImageUrl": { "type": "string" },
+          "lastMessage": { "type": "string" },
+          "lastMessageTime": { "type": "string", "format": "date-time" },
+          "unreadCount": { "type": "integer", "format": "int64" },
+          "contact": { "type": "boolean" },
+          "online": { "type": "boolean" },
+          "lastSeenAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UsernameAvailabilityResponse": {
+        "type": "object",
+        "properties": { "available": { "type": "boolean" } }
+      }
+    }
+  }
+}

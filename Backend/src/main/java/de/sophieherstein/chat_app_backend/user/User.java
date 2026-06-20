@@ -35,6 +35,9 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "last_seen_at", nullable = false)
+    private LocalDateTime lastSeenAt;
+
     public void changeUsername(String username) {
         this.username = username;
     }
@@ -47,4 +50,7 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    public void updateLastSeenAt(LocalDateTime lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
+    }
 }

@@ -7,6 +7,7 @@ import de.sophieherstein.chat_app_backend.chat.dto.SendMessageRequest;
 import de.sophieherstein.chat_app_backend.contact.ContactRepository;
 import de.sophieherstein.chat_app_backend.user.User;
 import de.sophieherstein.chat_app_backend.user.UserRepository;
+import de.sophieherstein.chat_app_backend.websocket.OnlineUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,6 +27,7 @@ public class ChatService {
     private final ChatParticipantRepository chatParticipantRepository;
     private final ContactRepository contactRepository;
     private final UserRepository userRepository;
+    private final OnlineUserService onlineUserService;
 
     @Transactional
     public DirectChatResponse createOrGetDirectChat(
@@ -235,7 +237,9 @@ public class ChatService {
                 lastMessage.map(ChatMessage::getContent).orElse(null),
                 lastMessage.map(ChatMessage::getCreatedAt).orElse(null),
                 unreadCount,
-                contactIds.contains(otherUser.getId())
+                contactIds.contains(otherUser.getId()),
+                onlineUserService.isOnline(otherUser.getId()),
+                otherUser.getLastSeenAt()
         );
     }
 

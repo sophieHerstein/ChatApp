@@ -1,10 +1,6 @@
 <div class="background">
   <div class="header p-4 d-flex flex-row align-items-center gap-4">
-    <button
-      type="button"
-      class="back-button"
-      [routerLink]="['/' + EAppPaths.Contacts]"
-    >
+    <button type="button" class="back-button" [routerLink]="['/' + EAppPaths.Contacts]">
       <ng-icon name="bootstrapArrowLeft"></ng-icon>
     </button>
 
@@ -19,16 +15,14 @@
 
     <div class="d-flex flex-column gap-2">
       <span class="fs-2 fw-bold">{{ getContactName() }}</span>
-      <span class="fs-6 fw-light">Zuletzt online {{ getContactLastSeen() }}</span>
+      <span class="fs-6 fw-light">{{ getContactPresence() }}</span>
     </div>
   </div>
 
   <hr />
 
   @if (errorOccured()) {
-    <div class="container alert alert-danger">
-      Es ist ein Fehler aufgetreten.
-    </div>
+    <div class="container alert alert-danger">Es ist ein Fehler aufgetreten.</div>
   }
 
   <div class="messages w-100 p-5">
@@ -38,7 +32,7 @@
         [ngClass]="{
           'message-sent': isSentByMe(message),
           'message-received': !isSentByMe(message),
-          'message-unread': isUnreadForMe(message)
+          'message-unread': isUnreadForMe(message),
         }"
       >
         <span>{{ message.content }}</span>

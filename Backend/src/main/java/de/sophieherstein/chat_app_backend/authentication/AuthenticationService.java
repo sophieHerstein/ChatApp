@@ -45,12 +45,14 @@ public class AuthenticationService {
             profileImageUrl = profileImageStorageService.store(request.getProfileImage());
         }
 
+        LocalDateTime now = LocalDateTime.now();
         User user = User.builder()
                 .id(UUID.randomUUID())
                 .username(username)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .profileImageUrl(profileImageUrl)
-                .createdAt(LocalDateTime.now())
+                .createdAt(now)
+                .lastSeenAt(now)
                 .build();
 
         User savedUser = userRepository.save(user);

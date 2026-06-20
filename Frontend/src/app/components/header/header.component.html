@@ -6,12 +6,7 @@
   <div class="search-wrapper">
     <ng-icon class="search-icon text-secondary" name="bootstrapSearch"></ng-icon>
 
-    <input
-      class="search-input"
-      [formControl]="searchWord"
-      type="text"
-      placeholder="Suche..."
-    />
+    <input class="search-input" [formControl]="searchWord" type="text" placeholder="Suche..." />
 
     @if (isSearching) {
       <button

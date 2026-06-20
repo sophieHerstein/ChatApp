@@ -1,4 +1,4 @@
-import {NgClass, NgOptimizedImage} from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -47,18 +47,12 @@ export class ContactsScreenComponent implements OnInit {
       return [];
     }
 
-    return this.users().filter((user) =>
-      user.username?.toLowerCase().includes(searchTerm),
-    );
+    return this.users().filter((user) => user.username?.toLowerCase().includes(searchTerm));
   });
 
-  visibleContactUsers = computed(() =>
-    this.visibleUsers().filter((user) => user.contact),
-  );
+  visibleContactUsers = computed(() => this.visibleUsers().filter((user) => user.contact));
 
-  visibleOtherUsers = computed(() =>
-    this.visibleUsers().filter((user) => !user.contact),
-  );
+  visibleOtherUsers = computed(() => this.visibleUsers().filter((user) => !user.contact));
 
   protected readonly EAppPaths = EAppPaths;
 

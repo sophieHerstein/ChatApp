@@ -4,7 +4,7 @@ import {
   DirectChatResponse,
   MessageResponse,
   SendMessageRequest,
-  ChatListItemResponse
+  ChatListItemResponse,
 } from '../generated/api';
 import { Observable } from 'rxjs';
 
