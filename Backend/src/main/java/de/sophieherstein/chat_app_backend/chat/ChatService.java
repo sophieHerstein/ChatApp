@@ -1,8 +1,10 @@
 package de.sophieherstein.chat_app_backend.chat;
 
+import de.sophieherstein.chat_app_backend.chat.dto.ChatListItemResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.DirectChatResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.MessageResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.SendMessageRequest;
+import de.sophieherstein.chat_app_backend.contact.ContactRepository;
 import de.sophieherstein.chat_app_backend.user.User;
 import de.sophieherstein.chat_app_backend.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -12,8 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatParticipantRepository chatParticipantRepository;
+    private final ContactRepository contactRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -150,6 +153,90 @@ public class ChatService {
         );
 
         return toMessageResponse(message);
+    }
+
+    @Transactional
+    public List<ChatListItemResponse> getChats(Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+
+        Set<UUID> contactIds = contactRepository
+                .findAllByOwnerUserId(currentUser.getId())
+                .stream()
+                .map(contact -> contact.getContactUser().getId())
+                .collect(Collectors.toSet());
+
+        return chatParticipantRepository
+                .findAllByUserId(currentUser.getId())
+                .stream()
+                .map(participation -> toChatListItem(participation.getChat(), currentUser, contactIds))
+                .sorted(
+                        Comparator
+                                .comparing((ChatListItemResponse chat) -> chat.unreadCount() > 0)
+                                .reversed()
+                                .thenComparing(
+                                        ChatListItemResponse::lastMessageTime,
+                                        Comparator.nullsLast(Comparator.reverseOrder())
+                                )
+                                .thenComparing(
+                                        ChatListItemResponse::username,
+                                        String.CASE_INSENSITIVE_ORDER
+                                )
+                )
+                .toList();
+    }
+
+    @Transactional
+    public void markChatAsRead(
+            Authentication authentication,
+            UUID chatId
+    ) {
+        User currentUser = getCurrentUser(authentication);
+
+        validateUserBelongsToChat(
+                currentUser.getId(),
+                chatId
+        );
+
+        List<ChatMessage> unreadMessages =
+                chatMessageRepository.findAllByChatIdAndReadFalseAndSenderIdNot(
+                        chatId,
+                        currentUser.getId()
+                );
+
+        unreadMessages.forEach(ChatMessage::markAsRead);
+    }
+
+    private ChatListItemResponse toChatListItem(
+            Chat chat,
+            User currentUser,
+            Set<UUID> contactIds
+    ) {
+        User otherUser = chatParticipantRepository.findAllByChatId(chat.getId())
+                .stream()
+                .map(ChatParticipant::getUser)
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .findFirst()
+                .orElseThrow();
+
+        Optional<ChatMessage> lastMessage =
+                chatMessageRepository.findFirstByChatIdOrderByCreatedAtDesc(chat.getId());
+
+        long unreadCount =
+                chatMessageRepository.countByChatIdAndReadFalseAndSenderIdNot(
+                        chat.getId(),
+                        currentUser.getId()
+                );
+
+        return new ChatListItemResponse(
+                chat.getId(),
+                otherUser.getId(),
+                otherUser.getUsername(),
+                otherUser.getProfileImageUrl(),
+                lastMessage.map(ChatMessage::getContent).orElse(null),
+                lastMessage.map(ChatMessage::getCreatedAt).orElse(null),
+                unreadCount,
+                contactIds.contains(otherUser.getId())
+        );
     }
 
     private User getCurrentUser(Authentication authentication) {

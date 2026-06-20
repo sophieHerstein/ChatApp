@@ -1,10 +1,12 @@
 package de.sophieherstein.chat_app_backend.chat;
 
+import de.sophieherstein.chat_app_backend.chat.dto.ChatListItemResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.DirectChatResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.MessageResponse;
 import de.sophieherstein.chat_app_backend.chat.dto.SendMessageRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -62,5 +64,21 @@ public class ChatController {
                 chatId,
                 request
         );
+    }
+
+    @GetMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<ChatListItemResponse> getChats(Authentication authentication) {
+        return chatService.getChats(authentication);
+    }
+
+    @PatchMapping("/{chatId}/read")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void markChatAsRead(
+            Authentication authentication,
+            @PathVariable UUID chatId
+    ) {
+        chatService.markChatAsRead(authentication, chatId);
     }
 }

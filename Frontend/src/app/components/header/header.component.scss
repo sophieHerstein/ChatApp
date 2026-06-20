@@ -8,4 +8,43 @@ app-header {
     -webkit-backdrop-filter: blur(6.5px);
     border: 1px solid rgba(255, 255, 255, 0.32);
   }
+
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    pointer-events: none;
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 0.65rem;
+
+    border: none;
+    background: transparent;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #6c757d;
+    cursor: pointer;
+  }
+
+  .search-clear:hover {
+    color: #ffffff;
+  }
 }

@@ -34,4 +34,8 @@ public class ChatMessage {
 
     @Column(nullable = false)
     private boolean read;
+
+    public void markAsRead() {
+        this.read = true;
+    }
 }

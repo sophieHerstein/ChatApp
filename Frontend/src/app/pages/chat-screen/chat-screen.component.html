@@ -1,36 +1,82 @@
 <div class="background">
   <div class="header p-4 d-flex flex-row align-items-center gap-4">
-    <img class="rounded-5" ngSrc="{{ contactAvatar }}" alt="Avatar" width="100" height="100" />
+    <button
+      type="button"
+      class="back-button"
+      [routerLink]="['/' + EAppPaths.Contacts]"
+    >
+      <ng-icon name="bootstrapArrowLeft"></ng-icon>
+    </button>
+
+    <img
+      class="rounded-5"
+      [ngSrc]="getContactAvatar()"
+      (error)="onImageError($event)"
+      alt="Avatar"
+      width="100"
+      height="100"
+    />
+
     <div class="d-flex flex-column gap-2">
-      <span class="fs-2 fw-bold">{{ contactName }}</span>
-      <span class="fs-6 fw-light">Zuletzt online {{ contactLastSeen }}</span>
+      <span class="fs-2 fw-bold">{{ getContactName() }}</span>
+      <span class="fs-6 fw-light">Zuletzt online {{ getContactLastSeen() }}</span>
     </div>
   </div>
+
   <hr />
-  <div class="messages position-absolute w-100 p-5">
-    @for (message of messages; track message.id) {
+
+  @if (errorOccured()) {
+    <div class="container alert alert-danger">
+      Es ist ein Fehler aufgetreten.
+    </div>
+  }
+
+  <div class="messages w-100 p-5">
+    @for (message of messages(); track message.id) {
       <div
         class="message card mb-3 p-3"
-        [ngClass]="message.sentByMe ? 'message-sent' : 'message-received'"
+        [ngClass]="{
+          'message-sent': isSentByMe(message),
+          'message-received': !isSentByMe(message),
+          'message-unread': isUnreadForMe(message)
+        }"
       >
-        <span>{{ message.message }}</span>
+        <span>{{ message.content }}</span>
+
         <div class="d-flex justify-content-between mt-2">
-          <span class="message-time">{{ message.time }}</span>
-          @if (message.sentByMe) {
-            @switch (message.status) {
-              @case (EStatus.SENT) {
-                <ng-icon class="text-secondary" name="bootstrapSend"></ng-icon>
-              }
-              @case (EStatus.RECEIVED) {
-                <ng-icon class="text-secondary" name="bootstrapSendFill"></ng-icon>
-              }
-              @case (EStatus.READ) {
-                <ng-icon class="text-primary" name="bootstrapSendCheck"></ng-icon>
-              }
+          <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+
+          @if (isSentByMe(message)) {
+            @if (message.read) {
+              <ng-icon class="text-primary" name="bootstrapSendCheck"></ng-icon>
+            } @else {
+              <ng-icon class="text-secondary" name="bootstrapSend"></ng-icon>
             }
           }
         </div>
       </div>
+    } @empty {
+      <p class="text-secondary text-center">Noch keine Nachrichten.</p>
     }
+  </div>
+
+  <div class="message-input-container p-4">
+    <div class="input-group">
+      <input
+        class="form-control"
+        [formControl]="messageFC"
+        placeholder="Nachricht schreiben..."
+        (keydown.enter)="sendMessage()"
+      />
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        [disabled]="messageFC.invalid || isSending()"
+        (click)="sendMessage()"
+      >
+        <ng-icon name="bootstrapSend"></ng-icon>
+      </button>
+    </div>
   </div>
 </div>

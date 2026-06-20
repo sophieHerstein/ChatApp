@@ -1,7 +1,15 @@
 app-chat-screen {
+  .header {
+    min-height: 140px;
+  }
+
+  .messages {
+    padding-bottom: 110px !important;
+  }
+
   .message-time {
     font-size: 0.8rem;
-    font-weight: 5;
+    font-weight: 400;
   }
 
   .message {
@@ -11,10 +19,60 @@ app-chat-screen {
   }
 
   .message.message-received {
-    left: 0;
+    margin-right: auto;
   }
 
   .message.message-sent {
-    left: 50%;
+    margin-left: auto;
+  }
+
+  .message-input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: inherit;
+  }
+
+  .message.message-unread {
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+  }
+
+  .message.message-unread::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #7c3aed;
+    box-shadow: 0 0 12px #7c3aed;
+  }
+
+  .back-button {
+    width: 50px;
+    height: 50px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+    font-size: 1.3rem;
+
+    transition: all 0.2s ease;
+  }
+
+  .back-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(-2px);
   }
 }
