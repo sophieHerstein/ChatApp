@@ -5,6 +5,7 @@ import de.sophieherstein.chat_app_backend.exceptions.InvalidCredentialsException
 import de.sophieherstein.chat_app_backend.exceptions.UsernameAlreadyTakenException;
 import de.sophieherstein.chat_app_backend.file.ProfileImageStorageService;
 import de.sophieherstein.chat_app_backend.user.dto.UpdatePasswordRequest;
+import de.sophieherstein.chat_app_backend.user.dto.UpdatePresenceVisibilityRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UpdateUsernameRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UserResponse;
 
@@ -15,7 +16,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import de.sophieherstein.chat_app_backend.user.dto.UserSearchResponse;
+import de.sophieherstein.chat_app_backend.websocket.OnlineUserService;
+import de.sophieherstein.chat_app_backend.websocket.dto.OnlineStatusResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProfileImageStorageService profileImageStorageService;
     private final ContactRepository contactRepository;
+    private final OnlineUserService onlineUserService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
     public UserResponse getMe(Authentication authentication) {
@@ -69,6 +75,27 @@ public class UserService {
 
         String profileImageUrl = profileImageStorageService.store(profileImage);
         user.changeProfileImageUrl(profileImageUrl);
+
+        return toUserResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updatePresenceVisibility(
+            Authentication authentication,
+            UpdatePresenceVisibilityRequest request
+    ) {
+        User user = getCurrentUser(authentication);
+        user.changePresenceVisible(request.visible());
+
+        messagingTemplate.convertAndSend(
+                "/topic/presence",
+                new OnlineStatusResponse(
+                        user.getId(),
+                        request.visible() && onlineUserService.isOnline(user.getId()),
+                        request.visible() ? user.getLastSeenAt() : null,
+                        request.visible()
+                )
+        );
 
         return toUserResponse(user);
     }
@@ -115,7 +142,8 @@ public class UserService {
                 user.getId(),
                 user.getUsername(),
                 user.getProfileImageUrl(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.isPresenceVisible()
         );
     }
 }

@@ -4,6 +4,7 @@ import {
   UserResponse,
   UpdateUsernameRequest,
   UpdatePasswordRequest,
+  UpdatePresenceVisibilityRequest,
 } from '../generated/api';
 import { Observable } from 'rxjs';
 
@@ -12,6 +13,10 @@ import { Observable } from 'rxjs';
 })
 export class UserService {
   userControllerService = inject(UserControllerService);
+
+  getMe(): Observable<UserResponse> {
+    return this.userControllerService.me();
+  }
 
   updateProfileImage(profileImage: Blob): Observable<UserResponse> {
     return this.userControllerService.updateProfileImage(profileImage);
@@ -23,5 +28,11 @@ export class UserService {
 
   updatePassword(updatePasswordRequest: UpdatePasswordRequest): Observable<UserResponse> {
     return this.userControllerService.updatePassword(updatePasswordRequest);
+  }
+
+  updatePresenceVisibility(
+    updatePresenceVisibilityRequest: UpdatePresenceVisibilityRequest,
+  ): Observable<UserResponse> {
+    return this.userControllerService.updatePresenceVisibility(updatePresenceVisibilityRequest);
   }
 }

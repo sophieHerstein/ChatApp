@@ -38,6 +38,9 @@ public class User {
     @Column(name = "last_seen_at", nullable = false)
     private LocalDateTime lastSeenAt;
 
+    @Column(name = "presence_visible", nullable = false)
+    private boolean presenceVisible;
+
     public void changeUsername(String username) {
         this.username = username;
     }
@@ -52,5 +55,9 @@ public class User {
 
     public void updateLastSeenAt(LocalDateTime lastSeenAt) {
         this.lastSeenAt = lastSeenAt;
+    }
+
+    public void changePresenceVisible(boolean presenceVisible) {
+        this.presenceVisible = presenceVisible;
     }
 }

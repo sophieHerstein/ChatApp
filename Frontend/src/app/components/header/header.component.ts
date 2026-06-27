@@ -7,13 +7,16 @@ import {
   inject,
   Output,
   EventEmitter,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { NgOptimizedImage } from '@angular/common';
 import { EAppPaths } from '../../app.paths';
 import {
   bootstrapHouseFill,
+  bootstrapPeopleFill,
   bootstrapPersonFillGear,
   bootstrapPersonFillX,
   bootstrapSearch,
@@ -31,6 +34,7 @@ import { AuthenticationStoreService } from '../../services/authentication-store.
       bootstrapPersonFillX,
       bootstrapSearch,
       bootstrapHouseFill,
+      bootstrapPeopleFill,
       bootstrapX,
     }),
   ],
@@ -41,11 +45,14 @@ import { AuthenticationStoreService } from '../../services/authentication-store.
 export class HeaderComponent implements OnInit {
   authenticationStoreService = inject(AuthenticationStoreService);
   router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   @Output() searching = new EventEmitter<string | null>();
   @Output() isSearchingOutput = new EventEmitter<boolean>();
 
+  @Input() showChats = true;
   @Input() showContacts = true;
+  @Input() showSearch = false;
 
   @Input() isSearching = false;
   searchWord = new FormControl('');
@@ -58,9 +65,11 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.profileImage.set(this.authenticationStoreService.profileImageSrc());
     this.username.set(this.authenticationStoreService.username());
-    this.searchWord.valueChanges.subscribe((value: string | null) => {
-      this.searching.emit(value);
-    });
+    this.searchWord.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value: string | null) => {
+        this.searching.emit(value);
+      });
   }
 
   quitSearch() {

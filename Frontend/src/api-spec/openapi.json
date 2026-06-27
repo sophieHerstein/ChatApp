@@ -194,6 +194,28 @@
         }
       }
     },
+    "/api/users/me/presence-visibility": {
+      "patch": {
+        "tags": ["user-controller"],
+        "operationId": "updatePresenceVisibility",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePresenceVisibilityRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me/password": {
       "patch": {
         "tags": ["user-controller"],
@@ -340,7 +362,8 @@
           "id": { "type": "string", "format": "uuid" },
           "username": { "type": "string" },
           "profileImageUrl": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" }
+          "createdAt": { "type": "string", "format": "date-time" },
+          "presenceVisible": { "type": "boolean" }
         }
       },
       "LoginRequest": {
@@ -355,6 +378,10 @@
         "type": "object",
         "properties": { "username": { "type": "string", "maxLength": 50, "minLength": 3 } },
         "required": ["username"]
+      },
+      "UpdatePresenceVisibilityRequest": {
+        "type": "object",
+        "properties": { "visible": { "type": "boolean" } }
       },
       "UpdatePasswordRequest": {
         "type": "object",
@@ -385,7 +412,8 @@
           "unreadCount": { "type": "integer", "format": "int64" },
           "contact": { "type": "boolean" },
           "online": { "type": "boolean" },
-          "lastSeenAt": { "type": "string", "format": "date-time" }
+          "lastSeenAt": { "type": "string", "format": "date-time" },
+          "presenceVisible": { "type": "boolean" }
         }
       },
       "UsernameAvailabilityResponse": {

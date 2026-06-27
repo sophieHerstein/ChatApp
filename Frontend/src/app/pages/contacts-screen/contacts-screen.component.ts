@@ -1,64 +1,97 @@
 import { NgClass, NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  bootstrapCheckCircle,
-  bootstrapPersonDash,
-  bootstrapPersonPlus,
-} from '@ng-icons/bootstrap-icons';
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header.component';
 import { EAppPaths } from '../../app.paths';
-import { UserSearchResponse, ChatListItemResponse } from '../../generated/api';
-import { ContactsService } from '../../services/contacts.service';
+import { ChatListItemResponse } from '../../generated/api';
 import { ChatService } from '../../services/chat.service';
+import { AuthenticationStoreService } from '../../services/authentication-store.service';
+import { WebsocketService } from '../../services/websocket.service';
+import { ContentStateComponent } from '../../components/content-state/content-state.component';
+import { backendUrl } from '../../backend-url';
 
 @Component({
   selector: 'app-contacts-screen',
-  imports: [NgOptimizedImage, NgIcon, HeaderComponent, NgClass],
-  viewProviders: [
-    provideIcons({
-      bootstrapCheckCircle,
-      bootstrapPersonDash,
-      bootstrapPersonPlus,
-    }),
-  ],
+  imports: [NgOptimizedImage, HeaderComponent, NgClass, ContentStateComponent],
   templateUrl: './contacts-screen.component.html',
   styleUrl: './contacts-screen.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class ContactsScreenComponent implements OnInit {
-  private contactsService = inject(ContactsService);
   private chatService = inject(ChatService);
   private router = inject(Router);
+  private authenticationStoreService = inject(AuthenticationStoreService);
+  private websocketService = inject(WebsocketService);
+  private destroyRef = inject(DestroyRef);
 
-  users = signal<UserSearchResponse[]>([]);
   chats = signal<ChatListItemResponse[]>([]);
-  searchTerm = signal<string>('');
-  isSearching = signal(false);
-  errorOccured = signal(false);
+  isLoadingChats = signal(true);
+  chatsError = signal(false);
 
   visibleChats = computed(() => this.chats());
-
-  visibleUsers = computed(() => {
-    const searchTerm = this.searchTerm().toLowerCase().trim();
-
-    if (!searchTerm) {
-      return [];
-    }
-
-    return this.users().filter((user) => user.username?.toLowerCase().includes(searchTerm));
-  });
-
-  visibleContactUsers = computed(() => this.visibleUsers().filter((user) => user.contact));
-
-  visibleOtherUsers = computed(() => this.visibleUsers().filter((user) => !user.contact));
 
   protected readonly EAppPaths = EAppPaths;
 
   ngOnInit(): void {
+    this.subscribeToChatEvents();
     this.loadChats();
-    this.loadUsers();
+  }
+
+  private subscribeToChatEvents(): void {
+    this.websocketService.chatMessages$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        const existingChat = this.chats().some((chat) => chat.chatId === event.chatId);
+
+        if (!existingChat) {
+          this.loadChats();
+          return;
+        }
+
+        const currentUserId = this.authenticationStoreService.currentUser()?.id;
+        this.chats.update((chats) =>
+          this.sortChats(
+            chats.map((chat) => {
+              if (chat.chatId !== event.chatId) {
+                return chat;
+              }
+
+              const receivedMessage = event.message.senderId !== currentUserId;
+              return {
+                ...chat,
+                lastMessage: event.message.content,
+                lastMessageTime: event.message.createdAt,
+                unreadCount: receivedMessage ? (chat.unreadCount ?? 0) + 1 : chat.unreadCount,
+              };
+            }),
+          ),
+        );
+      });
+
+    this.websocketService.chatReadEvents$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event.readByUserId !== this.authenticationStoreService.currentUser()?.id) {
+          return;
+        }
+
+        this.chats.update((chats) =>
+          this.sortChats(
+            chats.map((chat) =>
+              chat.chatId === event.chatId ? { ...chat, unreadCount: 0 } : chat,
+            ),
+          ),
+        );
+      });
   }
 
   openExistingChat(chat: ChatListItemResponse): void {
@@ -69,102 +102,47 @@ export class ContactsScreenComponent implements OnInit {
     this.router.navigate(['/', EAppPaths.Chat, chat.chatId]);
   }
 
-  openChat(user: UserSearchResponse): void {
-    if (!user.id) {
-      return;
-    }
-
-    this.chatService.createDirectChat(user.id).subscribe({
-      next: (response) => {
-        if (!response.chatId) {
-          this.errorOccured.set(true);
-          return;
-        }
-
-        this.router.navigate(['/', EAppPaths.Chat, response.chatId]);
-      },
-      error: (error) => {
-        console.error(error);
-        this.errorOccured.set(true);
-      },
-    });
-  }
-
-  loadUsers(): void {
-    this.contactsService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users.set(users);
-      },
-      error: (error) => {
-        console.error(error);
-        this.errorOccured.set(true);
-      },
-    });
+  openContacts(): void {
+    this.router.navigate(['/', EAppPaths.Contacts]);
   }
 
   loadChats(): void {
+    this.isLoadingChats.set(true);
+    this.chatsError.set(false);
     this.chatService.getChats().subscribe({
-      next: (chats) => this.chats.set(chats),
+      next: (chats) => {
+        this.chats.set(this.sortChats(chats));
+        this.isLoadingChats.set(false);
+      },
       error: (error) => {
         console.error(error);
-        this.errorOccured.set(true);
+        this.chatsError.set(true);
+        this.isLoadingChats.set(false);
       },
     });
   }
 
-  addContact(user: UserSearchResponse, event: MouseEvent): void {
-    event.stopPropagation();
+  private sortChats(chats: ChatListItemResponse[]): ChatListItemResponse[] {
+    return [...chats].sort((first, second) => {
+      const unreadDifference =
+        Number((second.unreadCount ?? 0) > 0) - Number((first.unreadCount ?? 0) > 0);
 
-    if (!user.id) {
-      return;
-    }
+      if (unreadDifference !== 0) {
+        return unreadDifference;
+      }
 
-    this.contactsService.addContact(user.id).subscribe({
-      next: () => this.loadUsers(),
-      error: (error) => {
-        console.error(error);
-        this.errorOccured.set(true);
-      },
+      const timeDifference =
+        new Date(second.lastMessageTime ?? 0).getTime() -
+        new Date(first.lastMessageTime ?? 0).getTime();
+
+      if (timeDifference !== 0) {
+        return timeDifference;
+      }
+
+      return (first.username ?? '').localeCompare(second.username ?? '', 'de', {
+        sensitivity: 'base',
+      });
     });
-  }
-
-  removeContact(user: UserSearchResponse, event: MouseEvent): void {
-    event.stopPropagation();
-
-    if (!user.id) {
-      return;
-    }
-
-    this.contactsService.removeContact(user.id).subscribe({
-      next: () => this.loadUsers(),
-      error: (error) => {
-        console.error(error);
-        this.errorOccured.set(true);
-      },
-    });
-  }
-
-  searchContact(value: string | null): void {
-    const searchValue = value?.trim() ?? '';
-
-    this.searchTerm.set(searchValue);
-    this.isSearching.set(!!searchValue);
-  }
-
-  isSearchingStatus(status: boolean): void {
-    this.isSearching.set(status);
-
-    if (!status) {
-      this.searchTerm.set('');
-    }
-  }
-
-  getProfileImageUrl(user: UserSearchResponse): string {
-    if (!user.profileImageUrl) {
-      return 'https://placehold.co/200x200';
-    }
-
-    return `http://localhost:8080${user.profileImageUrl}`;
   }
 
   onImageError(event: Event): void {
@@ -177,7 +155,7 @@ export class ContactsScreenComponent implements OnInit {
       return 'https://placehold.co/200x200';
     }
 
-    return `http://localhost:8080${chat.profileImageUrl}`;
+    return backendUrl(chat.profileImageUrl);
   }
 
   formatTime(value?: string): string {

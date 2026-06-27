@@ -1,31 +1,60 @@
-<div class="navbar ps-5 pe-5">
+<nav class="navbar ps-5 pe-5" aria-label="Hauptnavigation">
   <div>
-    <img class="rounded" ngSrc="{{ profileImage() }}" alt="Avatar" width="50" height="50" />
+    <img
+      class="rounded"
+      ngSrc="{{ profileImage() }}"
+      [alt]="'Profilbild von ' + username()"
+      width="50"
+      height="50"
+    />
     <span class="ms-2 fs-5 fw-bold">{{ username() }}</span>
   </div>
-  <div class="search-wrapper">
-    <ng-icon class="search-icon text-secondary" name="bootstrapSearch"></ng-icon>
+  @if (showSearch) {
+    <div class="search-wrapper">
+      <ng-icon
+        class="search-icon text-secondary"
+        name="bootstrapSearch"
+        aria-hidden="true"
+      ></ng-icon>
 
-    <input class="search-input" [formControl]="searchWord" type="text" placeholder="Suche..." />
+      <label class="visually-hidden" for="global-search">Nutzer suchen</label>
+      <input
+        id="global-search"
+        class="search-input"
+        [formControl]="searchWord"
+        type="search"
+        placeholder="Nutzer suchen …"
+        autocomplete="off"
+      />
 
-    @if (isSearching) {
-      <button
-        type="button"
-        class="search-clear"
-        (click)="quitSearch()"
-        aria-label="Suche zurücksetzen"
-      >
-        <ng-icon name="bootstrapX"></ng-icon>
-      </button>
-    }
-  </div>
+      @if (isSearching) {
+        <button
+          type="button"
+          class="search-clear"
+          (click)="quitSearch()"
+          aria-label="Suche zurücksetzen"
+        >
+          <ng-icon name="bootstrapX" aria-hidden="true"></ng-icon>
+        </button>
+      }
+    </div>
+  }
   <div class="d-flex align-items-center gap-4">
+    @if (showChats) {
+      <a
+        [routerLink]="'/' + EAppPaths.Chats"
+        class="d-flex align-items-center gap-2 text-decoration-none text-secondary"
+      >
+        <ng-icon class="text-secondary" name="bootstrapHouseFill" aria-hidden="true"></ng-icon>
+        <span>Chats</span>
+      </a>
+    }
     @if (showContacts) {
       <a
         [routerLink]="'/' + EAppPaths.Contacts"
         class="d-flex align-items-center gap-2 text-decoration-none text-secondary"
       >
-        <ng-icon class="text-secondary" name="bootstrapHouseFill"></ng-icon>
+        <ng-icon class="text-secondary" name="bootstrapPeopleFill" aria-hidden="true"></ng-icon>
         <span>Kontakte</span>
       </a>
     }
@@ -33,15 +62,16 @@
       [routerLink]="'/' + EAppPaths.Settings"
       class="d-flex align-items-center gap-2 text-decoration-none text-secondary"
     >
-      <ng-icon class="text-secondary" name="bootstrapPersonFillGear"></ng-icon>
+      <ng-icon class="text-secondary" name="bootstrapPersonFillGear" aria-hidden="true"></ng-icon>
       <span>Einstellungen</span>
     </a>
     <button
+      type="button"
       class="d-flex align-items-center gap-2 bg-transparent border-0 text-danger"
       (click)="logout()"
     >
-      <ng-icon class="text-danger" name="bootstrapPersonFillX"></ng-icon>
+      <ng-icon class="text-danger" name="bootstrapPersonFillX" aria-hidden="true"></ng-icon>
       <span>Abmelden</span>
     </button>
   </div>
-</div>
+</nav>

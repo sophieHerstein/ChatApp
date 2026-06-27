@@ -1,6 +1,7 @@
 package de.sophieherstein.chat_app_backend.user;
 
 import de.sophieherstein.chat_app_backend.user.dto.UpdatePasswordRequest;
+import de.sophieherstein.chat_app_backend.user.dto.UpdatePresenceVisibilityRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UpdateUsernameRequest;
 import de.sophieherstein.chat_app_backend.user.dto.UserResponse;
 import de.sophieherstein.chat_app_backend.user.dto.UserSearchResponse;
@@ -63,6 +64,18 @@ public class UserController {
             @RequestPart MultipartFile profileImage
     ) {
         return userService.updateProfileImage(authentication, profileImage);
+    }
+
+    @PatchMapping(
+            value = "/me/presence-visibility",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public UserResponse updatePresenceVisibility(
+            Authentication authentication,
+            @RequestBody UpdatePresenceVisibilityRequest request
+    ) {
+        return userService.updatePresenceVisibility(authentication, request);
     }
 
     @GetMapping(

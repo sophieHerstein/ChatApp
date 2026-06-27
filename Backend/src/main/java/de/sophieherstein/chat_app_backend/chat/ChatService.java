@@ -131,6 +131,16 @@ public class ChatService {
             UUID chatId,
             SendMessageRequest request
     ) {
+        return sendMessage(authentication, chatId, request, null);
+    }
+
+    @Transactional
+    public MessageResponse sendMessage(
+            Authentication authentication,
+            UUID chatId,
+            SendMessageRequest request,
+            UUID clientMessageId
+    ) {
 
         User currentUser = getCurrentUser(authentication);
 
@@ -138,6 +148,18 @@ public class ChatService {
                 currentUser.getId(),
                 chatId
         );
+
+        if (clientMessageId != null) {
+            Optional<ChatMessage> existingMessage =
+                    chatMessageRepository.findByClientMessageIdAndSenderId(
+                            clientMessageId,
+                            currentUser.getId()
+                    );
+
+            if (existingMessage.isPresent()) {
+                return toMessageResponse(existingMessage.get());
+            }
+        }
 
         Chat chat = chatRepository
                 .findById(chatId)
@@ -150,6 +172,7 @@ public class ChatService {
                         .sender(currentUser)
                         .content(request.content().trim())
                         .createdAt(LocalDateTime.now())
+                        .clientMessageId(clientMessageId)
                         .read(false)
                         .build()
         );
@@ -188,7 +211,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void markChatAsRead(
+    public List<UUID> markChatAsRead(
             Authentication authentication,
             UUID chatId
     ) {
@@ -206,6 +229,9 @@ public class ChatService {
                 );
 
         unreadMessages.forEach(ChatMessage::markAsRead);
+        return unreadMessages.stream()
+                .map(ChatMessage::getId)
+                .toList();
     }
 
     private ChatListItemResponse toChatListItem(
@@ -238,8 +264,12 @@ public class ChatService {
                 lastMessage.map(ChatMessage::getCreatedAt).orElse(null),
                 unreadCount,
                 contactIds.contains(otherUser.getId()),
-                onlineUserService.isOnline(otherUser.getId()),
-                otherUser.getLastSeenAt()
+                otherUser.isPresenceVisible()
+                        && onlineUserService.isOnline(otherUser.getId()),
+                otherUser.isPresenceVisible()
+                        ? otherUser.getLastSeenAt()
+                        : null,
+                otherUser.isPresenceVisible()
         );
     }
 

@@ -1,0 +1,28 @@
+<section
+  class="content-state"
+  [class.content-state-error]="kind === 'error'"
+  [attr.role]="kind === 'error' ? 'alert' : 'status'"
+  [attr.aria-live]="kind === 'error' ? 'assertive' : 'polite'"
+>
+  @if (kind === 'loading') {
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Wird geladen</span>
+    </div>
+  } @else {
+    <div class="content-state-symbol" aria-hidden="true">
+      {{ kind === 'error' ? '!' : '…' }}
+    </div>
+  }
+
+  <h2 class="h5 mb-1">{{ title }}</h2>
+
+  @if (message) {
+    <p class="mb-0 text-secondary">{{ message }}</p>
+  }
+
+  @if (actionLabel) {
+    <button type="button" class="btn btn-outline-primary mt-3" (click)="action.emit()">
+      {{ actionLabel }}
+    </button>
+  }
+</section>

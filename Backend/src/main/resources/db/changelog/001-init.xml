@@ -136,4 +136,40 @@
             <column name="created_at"/>
         </createIndex>
     </changeSet>
+    <changeSet id="004-add-user-last-seen-at" author="sophie">
+        <addColumn tableName="app_user">
+            <column name="last_seen_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="005-initialize-user-last-seen-at" author="sophie">
+        <update tableName="app_user">
+            <column name="last_seen_at" valueComputed="created_at"/>
+            <where>last_seen_at IS NULL</where>
+        </update>
+
+        <addNotNullConstraint
+                tableName="app_user"
+                columnName="last_seen_at"
+                columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="006-add-chat-message-client-id" author="sophie">
+        <addColumn tableName="chat_message">
+            <column name="client_message_id" type="UUID"/>
+        </addColumn>
+
+        <addUniqueConstraint
+                tableName="chat_message"
+                columnNames="client_message_id"
+                constraintName="uk_chat_message_client_message_id"/>
+    </changeSet>
+
+    <changeSet id="007-add-user-presence-visibility" author="sophie">
+        <addColumn tableName="app_user">
+            <column name="presence_visible" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

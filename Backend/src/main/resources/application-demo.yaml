@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: demo
+
+logging:
+  level:
+    de.sophieherstein.chat_app_backend.demo: INFO

@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 export interface OnlineStatus {
   online: boolean;
   lastSeenAt?: string;
+  visible: boolean;
 }
 
 @Injectable({
@@ -19,21 +20,22 @@ export class OnlineStatusStoreService {
     return this.getStatus(userId)?.online ?? false;
   }
 
-  initializeStatus(userId: string, online: boolean, lastSeenAt?: string): void {
+  initializeStatus(userId: string, online: boolean, lastSeenAt?: string, visible = true): void {
     if (this.statuses().has(userId)) {
       return;
     }
 
-    this.setStatus(userId, online, lastSeenAt);
+    this.setStatus(userId, online, lastSeenAt, visible);
   }
 
-  setStatus(userId: string, online: boolean, lastSeenAt?: string): void {
+  setStatus(userId: string, online: boolean, lastSeenAt?: string, visible = true): void {
     this.statuses.update((statuses) => {
       const next = new Map(statuses);
       const previous = next.get(userId);
       next.set(userId, {
-        online,
-        lastSeenAt: lastSeenAt ?? previous?.lastSeenAt,
+        online: visible && online,
+        lastSeenAt: visible ? (lastSeenAt ?? previous?.lastSeenAt) : undefined,
+        visible,
       });
       return next;
     });

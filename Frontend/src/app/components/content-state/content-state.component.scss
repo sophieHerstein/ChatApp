@@ -1,0 +1,30 @@
+.content-state {
+  display: flex;
+  min-height: 180px;
+  padding: 2rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+}
+
+.content-state-symbol {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  place-items: center;
+  color: #64748b;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.content-state-error .content-state-symbol {
+  color: #ef4444;
+}

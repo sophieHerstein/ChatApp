@@ -53,6 +53,7 @@ public class AuthenticationService {
                 .profileImageUrl(profileImageUrl)
                 .createdAt(now)
                 .lastSeenAt(now)
+                .presenceVisible(true)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -101,7 +102,8 @@ public class AuthenticationService {
                 user.getId(),
                 user.getUsername(),
                 user.getProfileImageUrl(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.isPresenceVisible()
         );
     }
 }

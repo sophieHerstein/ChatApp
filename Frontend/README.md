@@ -1,18 +1,43 @@
-# ChatAppFrontend
+# ChatApp Frontend
 
-OpenAPI spec:
-
-```bash
-mkdir -p src/api-spec
-curl http://localhost:8080/v3/api-docs -o src/api-spec/openapi.json
-```
-
-API-Client generieren:
+## Entwicklung
 
 ```bash
-npx openapi-generator-cli generate \
-  -i src/api-spec/openapi.json \
-  -g typescript-angular \
-  -o src/app/generated/api \
-  --additional-properties=providedInRoot=true
+yarn install
+yarn start
 ```
+
+Weitere Prüfungen:
+
+```bash
+yarn lint
+yarn test
+yarn build
+yarn format:check
+```
+
+## OpenAPI-Client
+
+Das Backend muss auf `http://localhost:8080` laufen. Anschließend:
+
+```bash
+yarn openapi:refresh
+```
+
+Der Befehl lädt die aktuelle OpenAPI-Spezifikation und generiert den
+TypeScript-Angular-Client neu.
+
+Generierte Dateien unter `src/app/generated/api` sollten nicht manuell
+bearbeitet werden. Die gespeicherte Spec und der daraus erzeugte Client werden
+gemeinsam versioniert, damit ein frischer Clone direkt kompilierbar bleibt.
+
+## Umgebungen
+
+Die REST- und WebSocket-Adressen liegen unter `src/environments`:
+
+- Development: `environment.development.ts`
+- Production: `environment.ts`
+
+Der Development-Build verwendet `http://localhost:8080`. Der Production-Build
+verwendet standardmäßig denselben Host wie das Frontend und erwartet einen
+Reverse Proxy für `/api`, `/uploads` und `/ws`.

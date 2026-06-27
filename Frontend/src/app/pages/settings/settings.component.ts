@@ -1,16 +1,9 @@
-import { Component, signal, ViewEncapsulation, OnInit, inject } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { EAppPaths } from '../../app.paths';
+import { Component, signal, ViewEncapsulation, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header.component';
 import { AuthenticationStoreService } from '../../services/authentication-store.service';
-import { Router } from '@angular/router';
-import { confirmPasswordValidator } from '../../utils';
+import { createPasswordForm, createUsernameControl, readImagePreview } from '../../utils';
 import { AuthenticationService } from '../../services/authentication.service';
 import {
   debounceTime,
@@ -28,6 +21,9 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapEye, bootstrapEyeSlash } from '@ng-icons/bootstrap-icons';
 import { UserService } from '../../services/user.service';
 import { UserResponse } from '../../generated/api';
+import { WebsocketService } from '../../services/websocket.service';
+import { NotificationPreferencesService } from '../../services/notification-preferences.service';
+import { ChatNotificationService } from '../../services/chat-notification.service';
 
 @Component({
   selector: 'app-settings',
@@ -41,33 +37,24 @@ export class SettingsComponent implements OnInit {
   authenticationStoreService = inject(AuthenticationStoreService);
   authenticationService = inject(AuthenticationService);
   userService = inject(UserService);
-  router = inject(Router);
+  private websocketService = inject(WebsocketService);
+  readonly notificationPreferences = inject(NotificationPreferencesService);
+  private chatNotificationService = inject(ChatNotificationService);
+  private destroyRef = inject(DestroyRef);
 
-  passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
+  usernameFC = createUsernameControl();
+  private passwordForm = createPasswordForm(false);
+  passwordFC = this.passwordForm.password;
+  confirmPasswordFC = this.passwordForm.confirmPassword;
+  passwordFG = this.passwordForm.group;
+  currentPasswordFC = new FormControl('', {
+    nonNullable: true,
+    validators: Validators.required,
+  });
 
-  usernameFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(3),
-    Validators.maxLength(50),
-  ]);
-  passwordFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    Validators.maxLength(100),
-    Validators.pattern(this.passwordRegex),
-  ]);
-  confirmPasswordFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    Validators.maxLength(100),
-  ]);
-  currentPasswordFC: FormControl = new FormControl('', Validators.required);
-  passwordFG: FormGroup = new FormGroup(
-    { password: this.passwordFC, confirmPassword: this.confirmPasswordFC },
-    confirmPasswordValidator,
-  );
-
-  errorOccured = signal<boolean>(false);
+  statusMessage = signal<string | null>(null);
+  statusType = signal<'success' | 'danger' | null>(null);
+  isSaving = signal(false);
 
   showPassword = false;
   showConfirmPassword = false;
@@ -75,19 +62,28 @@ export class SettingsComponent implements OnInit {
 
   profileImage = signal<File | null>(null);
   profileImagePreview = signal<string | null>(null);
-  currentProfileImage = signal<string | null>(null);
 
-  usernameAvailable = signal<boolean>(false);
-
-  protected readonly EAppPaths = EAppPaths;
+  usernameTaken = signal<boolean>(false);
+  notificationStatus = signal<string | null>(null);
+  presenceStatus = signal<string | null>(null);
+  isSavingPresence = signal(false);
+  browserPermission = signal<NotificationPermission | 'unsupported'>(
+    this.chatNotificationService.browserPermission(),
+  );
 
   ngOnInit(): void {
     const currentUser = this.authenticationStoreService.currentUser();
 
+    if (
+      this.notificationPreferences.browserNotificationsEnabled() &&
+      this.browserPermission() !== 'granted'
+    ) {
+      this.notificationPreferences.setBrowserNotificationsEnabled(false);
+    }
+
     this.usernameFC.setValue(currentUser?.username ?? '', { emitEvent: false });
 
     this.profileImagePreview.set(this.authenticationStoreService.profileImageSrc());
-    this.currentProfileImage.set(this.authenticationStoreService.profileImageSrc());
 
     this.usernameFC.valueChanges
       .pipe(
@@ -96,7 +92,7 @@ export class SettingsComponent implements OnInit {
         map((username) => username?.trim() ?? ''),
         tap((username) => {
           if (!username || username.length < 3) {
-            this.usernameAvailable.set(false);
+            this.usernameTaken.set(false);
           }
         }),
         filter((username) => username.length >= 3),
@@ -104,19 +100,20 @@ export class SettingsComponent implements OnInit {
           const currentUsername = this.authenticationStoreService.currentUser()?.username;
 
           if (username.toLowerCase() === currentUsername?.toLowerCase()) {
-            this.usernameAvailable.set(true);
+            this.usernameTaken.set(false);
             return EMPTY;
           }
 
           return this.authenticationService.isUsernameAvailable(username);
         }),
       )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
-        this.usernameAvailable.set(!result.available);
+        this.usernameTaken.set(!result.available);
       });
   }
 
-  onProfileImageSelected(event: Event): void {
+  async onProfileImageSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) {
       return;
@@ -124,28 +121,87 @@ export class SettingsComponent implements OnInit {
 
     const file = input.files[0];
     this.profileImage.set(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.profileImagePreview.set(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    this.profileImagePreview.set(await readImagePreview(file));
+  }
+
+  async toggleSound(enabled: boolean): Promise<void> {
+    this.notificationPreferences.setSoundEnabled(enabled);
+    this.notificationStatus.set(
+      enabled ? 'Benachrichtigungston wurde aktiviert.' : 'Benachrichtigungston wurde deaktiviert.',
+    );
+
+    if (enabled) {
+      await this.chatNotificationService.previewSound();
+    }
+  }
+
+  async toggleBrowserNotifications(enabled: boolean): Promise<void> {
+    if (!enabled) {
+      this.notificationPreferences.setBrowserNotificationsEnabled(false);
+      this.notificationStatus.set('Browser-Benachrichtigungen wurden deaktiviert.');
+      return;
+    }
+
+    const permission = await this.chatNotificationService.requestBrowserPermission();
+    this.browserPermission.set(permission);
+
+    if (permission === 'granted') {
+      this.notificationPreferences.setBrowserNotificationsEnabled(true);
+      this.notificationStatus.set('Browser-Benachrichtigungen wurden aktiviert.');
+    } else {
+      this.notificationPreferences.setBrowserNotificationsEnabled(false);
+      this.notificationStatus.set(
+        permission === 'denied'
+          ? 'Browser-Benachrichtigungen sind im Browser blockiert.'
+          : 'Browser-Benachrichtigungen wurden nicht freigegeben.',
+      );
+    }
+  }
+
+  togglePresenceVisibility(visible: boolean): void {
+    this.isSavingPresence.set(true);
+    this.presenceStatus.set(null);
+
+    this.userService.updatePresenceVisibility({ visible }).subscribe({
+      next: (user) => {
+        this.authenticationStoreService.updateCurrentUser(user);
+        this.isSavingPresence.set(false);
+        this.presenceStatus.set(
+          visible
+            ? 'Dein Online-Status ist für andere sichtbar.'
+            : 'Dein Online-Status und „zuletzt online“ sind jetzt verborgen.',
+        );
+      },
+      error: (error) => {
+        console.error(error);
+        this.isSavingPresence.set(false);
+        this.presenceStatus.set('Die Presence-Einstellung konnte nicht gespeichert werden.');
+      },
+    });
+  }
+
+  browserNotificationsAvailable(): boolean {
+    return this.browserPermission() !== 'unsupported';
   }
 
   save() {
-    this.errorOccured.set(false);
+    this.statusMessage.set(null);
+    this.statusType.set(null);
 
     const currentUser = this.authenticationStoreService.currentUser();
 
     if (!currentUser) {
-      this.errorOccured.set(true);
+      this.showError('Deine Nutzerdaten konnten nicht geladen werden.');
       return;
     }
 
     const requests: Observable<UserResponse | void>[] = [];
 
     const newUsername = this.usernameFC.value?.trim();
+    const usernameChanged =
+      !!newUsername && newUsername.toLowerCase() !== currentUser.username?.toLowerCase();
 
-    if (newUsername && newUsername.toLowerCase() !== currentUser.username?.toLowerCase()) {
+    if (usernameChanged) {
       requests.push(this.userService.updateUsername({ username: newUsername }));
     }
 
@@ -158,7 +214,7 @@ export class SettingsComponent implements OnInit {
 
     if (wantsToChangePassword) {
       if (this.passwordFG.invalid || this.currentPasswordFC.invalid) {
-        this.errorOccured.set(true);
+        this.showError('Bitte fülle alle Passwortfelder korrekt aus.');
         return;
       }
 
@@ -171,9 +227,11 @@ export class SettingsComponent implements OnInit {
     }
 
     if (requests.length === 0) {
+      this.showError('Es wurden keine Änderungen vorgenommen.');
       return;
     }
 
+    this.isSaving.set(true);
     concat(...requests)
       .pipe(
         tap((result) => {
@@ -183,15 +241,41 @@ export class SettingsComponent implements OnInit {
         }),
         catchError((error) => {
           console.error(error);
-          this.errorOccured.set(true);
+          if (error.status === 401) {
+            this.showError('Das aktuelle Passwort ist nicht korrekt.');
+          } else if (error.status === 409) {
+            this.showError('Der Nutzername ist bereits vergeben.');
+          } else if (error.status === 400) {
+            this.showError('Die ausgewählten Daten sind ungültig.');
+          } else {
+            this.showError('Die Änderungen konnten nicht gespeichert werden.');
+          }
           return EMPTY;
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         complete: () => {
+          this.isSaving.set(false);
           this.profileImage.set(null);
-          this.currentProfileImage.set(this.authenticationStoreService.profileImageSrc());
+          this.profileImagePreview.set(this.authenticationStoreService.profileImageSrc());
+          this.currentPasswordFC.reset();
+          this.passwordFC.reset();
+          this.confirmPasswordFC.reset();
+          if (this.statusType() !== 'danger') {
+            this.statusType.set('success');
+            this.statusMessage.set('Deine Einstellungen wurden gespeichert.');
+            if (usernameChanged) {
+              this.websocketService.reconnect();
+            }
+          }
         },
       });
+  }
+
+  private showError(message: string): void {
+    this.isSaving.set(false);
+    this.statusType.set('danger');
+    this.statusMessage.set(message);
   }
 }

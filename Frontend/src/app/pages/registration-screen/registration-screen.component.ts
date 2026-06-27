@@ -1,16 +1,11 @@
-import { Component, inject, signal, ViewEncapsulation, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, DestroyRef, inject, signal, ViewEncapsulation, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EAppPaths } from '../../app.paths';
 import { Router, RouterLink } from '@angular/router';
 import { AuthenticationService } from '../../services/authentication.service';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
-import { confirmPasswordValidator } from '../../utils';
+import { createPasswordForm, createUsernameControl, readImagePreview } from '../../utils';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { bootstrapEye, bootstrapEyeSlash } from '@ng-icons/bootstrap-icons';
 import { LoginResponse } from '../../generated/api';
@@ -28,29 +23,13 @@ export class RegistrationScreenComponent implements OnInit {
   authenticationStoreService = inject(AuthenticationStoreService);
   authenticationService = inject(AuthenticationService);
   router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
-  passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
-
-  usernameFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(3),
-    Validators.maxLength(50),
-  ]);
-  passwordFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    Validators.maxLength(100),
-    Validators.pattern(this.passwordRegex),
-  ]);
-  confirmPasswordFC: FormControl = new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    Validators.maxLength(100),
-  ]);
-  passwordFG: FormGroup = new FormGroup(
-    { password: this.passwordFC, confirmPassword: this.confirmPasswordFC },
-    confirmPasswordValidator,
-  );
+  usernameFC = createUsernameControl();
+  private passwordForm = createPasswordForm(true);
+  passwordFC = this.passwordForm.password;
+  confirmPasswordFC = this.passwordForm.confirmPassword;
+  passwordFG = this.passwordForm.group;
 
   errorOccured = signal<boolean>(false);
 
@@ -60,7 +39,7 @@ export class RegistrationScreenComponent implements OnInit {
   profileImage = signal<File | null>(null);
   profileImagePreview = signal<string | null>(null);
 
-  usernameAvailable = signal<boolean>(false);
+  usernameTaken = signal<boolean>(false);
 
   protected readonly EAppPaths = EAppPaths;
 
@@ -72,14 +51,15 @@ export class RegistrationScreenComponent implements OnInit {
         map((username) => username?.trim() ?? ''),
         tap((username) => {
           if (!username) {
-            this.usernameAvailable.set(false);
+            this.usernameTaken.set(false);
           }
         }),
         filter((username) => username.length >= 3),
         switchMap((username) => this.authenticationService.isUsernameAvailable(username)),
       )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
-        this.usernameAvailable.set(!result.available);
+        this.usernameTaken.set(!result.available);
       });
   }
 
@@ -90,7 +70,7 @@ export class RegistrationScreenComponent implements OnInit {
       .subscribe({
         next: (response: LoginResponse) => {
           this.authenticationStoreService.setLogin(response);
-          this.router.navigate(['/' + EAppPaths.Contacts]);
+          this.router.navigate(['/' + EAppPaths.Chats]);
         },
         error: () => {
           this.errorOccured.set(true);
@@ -98,7 +78,7 @@ export class RegistrationScreenComponent implements OnInit {
       });
   }
 
-  onProfileImageSelected(event: Event): void {
+  async onProfileImageSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) {
       return;
@@ -106,10 +86,6 @@ export class RegistrationScreenComponent implements OnInit {
 
     const file = input.files[0];
     this.profileImage.set(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.profileImagePreview.set(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    this.profileImagePreview.set(await readImagePreview(file));
   }
 }

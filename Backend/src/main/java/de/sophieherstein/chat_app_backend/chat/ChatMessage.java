@@ -32,6 +32,9 @@ public class ChatMessage {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "client_message_id", unique = true)
+    private UUID clientMessageId;
+
     @Column(nullable = false)
     private boolean read;
 

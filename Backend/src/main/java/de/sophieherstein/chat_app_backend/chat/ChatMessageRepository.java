@@ -13,6 +13,8 @@ public interface ChatMessageRepository
 
     Optional<ChatMessage> findFirstByChatIdOrderByCreatedAtDesc(UUID chatId);
 
+    Optional<ChatMessage> findByClientMessageIdAndSenderId(UUID clientMessageId, UUID senderId);
+
     long countByChatIdAndReadFalseAndSenderIdNot(UUID chatId, UUID senderId);
 
     List<ChatMessage> findAllByChatIdAndReadFalseAndSenderIdNot(UUID chatId, UUID senderId);

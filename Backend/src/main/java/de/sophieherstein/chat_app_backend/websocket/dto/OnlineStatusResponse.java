@@ -6,6 +6,7 @@ import java.util.UUID;
 public record OnlineStatusResponse(
         UUID userId,
         boolean online,
-        LocalDateTime lastSeenAt
+        LocalDateTime lastSeenAt,
+        boolean visible
 ) {
 }

@@ -3,7 +3,7 @@
     <h1>Login</h1>
     <div class="d-flex flex-column mt-3 mb-2">
       <label for="nutzername">Nutzername</label>
-      <input id="nutzername" type="text" [formControl]="usernameFC" />
+      <input id="nutzername" type="text" [formControl]="usernameFC" autocomplete="username" />
     </div>
     <div class="d-flex flex-column mb-4">
       <label for="passwort">Passwort</label>
@@ -13,13 +13,27 @@
           [formControl]="passwordFC"
           [type]="showPassword ? 'text' : 'password'"
           id="passwort"
+          autocomplete="current-password"
+          [attr.aria-invalid]="errorOccured()"
+          aria-describedby="login-error"
         />
-        <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
-          <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="showPassword = !showPassword"
+          [attr.aria-label]="showPassword ? 'Passwort ausblenden' : 'Passwort anzeigen'"
+          [attr.aria-pressed]="showPassword"
+        >
+          <ng-icon
+            [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+            aria-hidden="true"
+          ></ng-icon>
         </button>
       </div>
       @if (errorOccured()) {
-        <span class="text-danger">Login war nicht erfolgreich. Versuche es nochmal.</span>
+        <span id="login-error" class="text-danger" role="alert">
+          Login war nicht erfolgreich. Versuche es nochmal.
+        </span>
       }
     </div>
     <button

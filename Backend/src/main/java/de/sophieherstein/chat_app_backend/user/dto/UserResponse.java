@@ -7,5 +7,6 @@ public record UserResponse(
         UUID id,
         String username,
         String profileImageUrl,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean presenceVisible
 ) {}

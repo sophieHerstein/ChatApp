@@ -35,3 +35,56 @@ body {
   -webkit-backdrop-filter: blur(6.5px);
   border: 1px solid rgba(255, 255, 255, 0.32);
 }
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  display: flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: #212529;
+}
+
+:where(a, button, input, [role='button']):focus-visible {
+  outline: 3px solid #0f172a;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

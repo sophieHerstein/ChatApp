@@ -6,6 +6,7 @@
         <img [src]="profileImagePreview()" alt="Profilbild" class="profile-image mb-2" />
       }
       <input
+        id="registration-profile-image"
         #fileInput
         (change)="onProfileImageSelected($event)"
         accept="image/*"
@@ -18,8 +19,15 @@
     </div>
     <div class="d-flex flex-column mt-3 mb-2">
       <label for="nutzername">Nutzername</label>
-      <input [formControl]="usernameFC" id="nutzername" type="text" />
-      <div class="text-danger">
+      <input
+        [formControl]="usernameFC"
+        id="nutzername"
+        type="text"
+        autocomplete="username"
+        [attr.aria-invalid]="usernameFC.invalid && usernameFC.touched"
+        aria-describedby="registration-username-errors"
+      />
+      <div id="registration-username-errors" class="text-danger" aria-live="polite">
         @if (usernameFC.invalid && usernameFC.touched) {
           @if (usernameFC.errors?.['minlength']) {
             <span>Nutzername ist zu kurz.</span>
@@ -31,7 +39,7 @@
             <span>Nutzername ist erforderlich.</span>
           }
         }
-        @if (usernameAvailable()) {
+        @if (usernameTaken()) {
           <span>Nutzername ist bereits vorhanden.</span>
         }
       </div>
@@ -46,9 +54,21 @@
               [formControl]="passwordFC"
               [type]="showPassword ? 'text' : 'password'"
               id="passwort"
+              autocomplete="new-password"
+              [attr.aria-invalid]="passwordFC.invalid && passwordFC.touched"
+              aria-describedby="registration-password-errors"
             />
-            <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
-              <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Passwort ausblenden' : 'Passwort anzeigen'"
+              [attr.aria-pressed]="showPassword"
+            >
+              <ng-icon
+                [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+                aria-hidden="true"
+              ></ng-icon>
             </button>
           </div>
         </div>
@@ -60,22 +80,34 @@
               [formControl]="confirmPasswordFC"
               [type]="showConfirmPassword ? 'text' : 'password'"
               id="passwortWiederholen"
+              autocomplete="new-password"
               [readonly]="passwordFC.invalid"
+              [attr.aria-invalid]="
+                passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched
+              "
+              aria-describedby="registration-password-errors"
             />
             <button
               type="button"
               class="password-toggle"
               (click)="showConfirmPassword = !showConfirmPassword"
+              [attr.aria-label]="
+                showConfirmPassword
+                  ? 'Passwortwiederholung ausblenden'
+                  : 'Passwortwiederholung anzeigen'
+              "
+              [attr.aria-pressed]="showConfirmPassword"
             >
               <ng-icon
                 [name]="showConfirmPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+                aria-hidden="true"
               ></ng-icon>
             </button>
           </div>
         </div>
       </div>
       <div>
-        <div class="text-danger mb-3">
+        <div id="registration-password-errors" class="text-danger mb-3" aria-live="polite">
           @if (passwordFC.invalid && passwordFC.touched) {
             @if (passwordFC.errors?.['minlength']) {
               <span>Passwort ist zu kurz.</span><br />
@@ -98,7 +130,9 @@
             <span class="text-danger">Die Passwörter stimmen nicht überein.</span>
           }
           @if (errorOccured()) {
-            <span class="text-danger">Ein Fehler ist aufgetreten. Versuche es erneut.</span>
+            <span class="text-danger" role="alert">
+              Ein Fehler ist aufgetreten. Versuche es erneut.
+            </span>
           }
         </div>
       </div>

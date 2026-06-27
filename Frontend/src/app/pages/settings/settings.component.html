@@ -1,5 +1,5 @@
 <div class="background">
-  <app-header [showContacts]="true"></app-header>
+  <app-header></app-header>
   <div class="container">
     <h1>Einstellungen</h1>
     <div class="d-flex flex-column mb-3">
@@ -8,6 +8,7 @@
         <img [src]="profileImagePreview()" alt="Profilbild" class="profile-image mb-2" />
       }
       <input
+        id="settings-profile-image"
         #fileInput
         type="file"
         accept="image/*"
@@ -20,8 +21,15 @@
     </div>
     <div class="d-flex flex-column mt-3 mb-2 p-3 gap-2 card">
       <label class="fw-bold" for="nutzername">Nutzername ändern</label>
-      <input id="nutzername" type="text" [formControl]="usernameFC" />
-      <div class="text-danger">
+      <input
+        id="nutzername"
+        type="text"
+        [formControl]="usernameFC"
+        autocomplete="username"
+        [attr.aria-invalid]="usernameFC.invalid && usernameFC.touched"
+        aria-describedby="settings-username-errors"
+      />
+      <div id="settings-username-errors" class="text-danger" aria-live="polite">
         @if (usernameFC.invalid && usernameFC.touched) {
           @if (usernameFC.errors?.['minlength']) {
             <span>Nutzername ist zu kurz.</span>
@@ -30,7 +38,7 @@
             <span>Nutzername ist zu lang.</span>
           }
         }
-        @if (usernameAvailable()) {
+        @if (usernameTaken()) {
           <span>Nutzername ist bereits vorhanden.</span>
         }
       </div>
@@ -43,15 +51,24 @@
           <input
             class="w-100"
             id="currentPasswort"
-            type="password"
+            [type]="showCurrentPassword ? 'text' : 'password'"
             [formControl]="currentPasswordFC"
+            autocomplete="current-password"
+            aria-describedby="settings-status"
           />
           <button
             type="button"
             class="password-toggle"
             (click)="showCurrentPassword = !showCurrentPassword"
+            [attr.aria-label]="
+              showCurrentPassword ? 'Aktuelles Passwort ausblenden' : 'Aktuelles Passwort anzeigen'
+            "
+            [attr.aria-pressed]="showCurrentPassword"
           >
-            <ng-icon [name]="showCurrentPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+            <ng-icon
+              [name]="showCurrentPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+              aria-hidden="true"
+            ></ng-icon>
           </button>
         </div>
       </div>
@@ -65,9 +82,23 @@
                 [formControl]="passwordFC"
                 [type]="showPassword ? 'text' : 'password'"
                 id="passwort"
+                autocomplete="new-password"
+                [attr.aria-invalid]="passwordFC.invalid && passwordFC.touched"
+                aria-describedby="settings-password-errors settings-status"
               />
-              <button type="button" class="password-toggle" (click)="showPassword = !showPassword">
-                <ng-icon [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"></ng-icon>
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="showPassword = !showPassword"
+                [attr.aria-label]="
+                  showPassword ? 'Neues Passwort ausblenden' : 'Neues Passwort anzeigen'
+                "
+                [attr.aria-pressed]="showPassword"
+              >
+                <ng-icon
+                  [name]="showPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+                  aria-hidden="true"
+                ></ng-icon>
               </button>
             </div>
           </div>
@@ -79,22 +110,34 @@
                 [formControl]="confirmPasswordFC"
                 [type]="showConfirmPassword ? 'text' : 'password'"
                 id="passwortWiederholen"
+                autocomplete="new-password"
                 [readonly]="passwordFC.invalid"
+                [attr.aria-invalid]="
+                  passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched
+                "
+                aria-describedby="settings-password-errors settings-status"
               />
               <button
                 type="button"
                 class="password-toggle"
                 (click)="showConfirmPassword = !showConfirmPassword"
+                [attr.aria-label]="
+                  showConfirmPassword
+                    ? 'Passwortwiederholung ausblenden'
+                    : 'Passwortwiederholung anzeigen'
+                "
+                [attr.aria-pressed]="showConfirmPassword"
               >
                 <ng-icon
                   [name]="showConfirmPassword ? 'bootstrapEyeSlash' : 'bootstrapEye'"
+                  aria-hidden="true"
                 ></ng-icon>
               </button>
             </div>
           </div>
         </div>
         <div>
-          <div class="text-danger mb-3">
+          <div id="settings-password-errors" class="text-danger mb-3" aria-live="polite">
             @if (passwordFC.invalid && passwordFC.touched) {
               @if (passwordFC.errors?.['minlength']) {
                 <span>Passwort ist zu kurz.</span><br />
@@ -113,13 +156,98 @@
             @if (passwordFG.invalid && confirmPasswordFC.touched && passwordFC.touched) {
               <span class="text-danger">Die Passwörter stimmen nicht überein.</span>
             }
-            @if (errorOccured()) {
-              <span class="text-danger">Ein Fehler ist aufgetreten. Versuche es erneut.</span>
-            }
           </div>
         </div>
       </div>
     </div>
-    <button class="btn btn-primary mb-2" (click)="save()">Speichern</button>
+    <section class="d-flex flex-column mt-3 mb-3 p-3 gap-3 card" aria-labelledby="notifications">
+      <div>
+        <h2 id="notifications" class="h5 mb-1">Benachrichtigungen</h2>
+        <p class="text-secondary mb-0">
+          Benachrichtigungen erscheinen nur für fremde Nachrichten außerhalb des sichtbaren Chats.
+        </p>
+      </div>
+
+      <div class="form-check form-switch">
+        <input
+          id="notification-sound"
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          [checked]="notificationPreferences.soundEnabled()"
+          (change)="toggleSound($any($event.target).checked)"
+        />
+        <label class="form-check-label" for="notification-sound"> Ton bei neuen Nachrichten </label>
+      </div>
+
+      <div class="form-check form-switch">
+        <input
+          id="browser-notifications"
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          [checked]="notificationPreferences.browserNotificationsEnabled()"
+          [disabled]="!browserNotificationsAvailable()"
+          (change)="toggleBrowserNotifications($any($event.target).checked)"
+        />
+        <label class="form-check-label" for="browser-notifications">
+          Browser-Benachrichtigungen
+        </label>
+        @if (!browserNotificationsAvailable()) {
+          <div class="form-text">Dieser Browser unterstützt keine Benachrichtigungen.</div>
+        } @else if (browserPermission() === 'denied') {
+          <div class="form-text text-danger">
+            Die Berechtigung ist blockiert und muss in den Browser-Einstellungen freigegeben werden.
+          </div>
+        }
+      </div>
+
+      @if (notificationStatus()) {
+        <div class="alert alert-info mb-0" role="status">
+          {{ notificationStatus() }}
+        </div>
+      }
+    </section>
+    <section class="d-flex flex-column mt-3 mb-3 p-3 gap-3 card" aria-labelledby="privacy">
+      <div>
+        <h2 id="privacy" class="h5 mb-1">Privatsphäre</h2>
+        <p class="text-secondary mb-0">
+          Lege fest, ob andere Nutzer deinen Online-Status und „zuletzt online“ sehen dürfen.
+        </p>
+      </div>
+
+      <div class="form-check form-switch">
+        <input
+          id="presence-visible"
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          [checked]="authenticationStoreService.currentUser()?.presenceVisible ?? true"
+          [disabled]="isSavingPresence()"
+          (change)="togglePresenceVisibility($any($event.target).checked)"
+        />
+        <label class="form-check-label" for="presence-visible"> Online-Status anzeigen </label>
+      </div>
+
+      @if (presenceStatus()) {
+        <div class="alert alert-info mb-0" role="status">
+          {{ presenceStatus() }}
+        </div>
+      }
+    </section>
+    @if (statusMessage()) {
+      <div
+        id="settings-status"
+        class="alert"
+        [attr.role]="statusType() === 'danger' ? 'alert' : 'status'"
+        [class.alert-success]="statusType() === 'success'"
+        [class.alert-danger]="statusType() === 'danger'"
+      >
+        {{ statusMessage() }}
+      </div>
+    }
+    <button class="btn btn-primary mb-2" [disabled]="isSaving()" (click)="save()">
+      {{ isSaving() ? 'Speichert …' : 'Speichern' }}
+    </button>
   </div>
 </div>

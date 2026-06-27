@@ -44,9 +44,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 throw new AccessDeniedException("Invalid WebSocket access token");
             }
 
-            String username = jwtService.extractUsername(token);
-
-            User user = userRepository.findByUsernameIgnoreCase(username)
+            User user = userRepository.findById(jwtService.extractUserId(token))
                     .orElseThrow();
 
             accessor.setUser(new StompPrincipal(user.getId(), user.getUsername()));

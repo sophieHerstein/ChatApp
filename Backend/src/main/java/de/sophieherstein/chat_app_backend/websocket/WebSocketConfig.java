@@ -1,5 +1,6 @@
 package de.sophieherstein.chat_app_backend.websocket;
 
+import de.sophieherstein.chat_app_backend.config.AppCorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -12,18 +13,22 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+    private final AppCorsProperties corsProperties;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/topic", "/queue");
         registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:4200");
+                .setAllowedOriginPatterns(
+                        corsProperties.allowedOrigins().toArray(String[]::new)
+                );
     }
 
     @Override

@@ -1,65 +1,140 @@
 <div class="background">
   <div class="header p-4 d-flex flex-row align-items-center gap-4">
-    <button type="button" class="back-button" [routerLink]="['/' + EAppPaths.Contacts]">
-      <ng-icon name="bootstrapArrowLeft"></ng-icon>
+    <button
+      type="button"
+      class="back-button"
+      [routerLink]="['/' + EAppPaths.Chats]"
+      aria-label="Zurück zur Chatübersicht"
+    >
+      <ng-icon name="bootstrapArrowLeft" aria-hidden="true"></ng-icon>
     </button>
 
     <img
       class="rounded-5"
       [ngSrc]="getContactAvatar()"
       (error)="onImageError($event)"
-      alt="Avatar"
+      [alt]="'Profilbild von ' + getContactName()"
       width="100"
       height="100"
     />
 
     <div class="d-flex flex-column gap-2">
       <span class="fs-2 fw-bold">{{ getContactName() }}</span>
-      <span class="fs-6 fw-light">{{ getContactPresence() }}</span>
+      <span class="fs-6 fw-light" aria-live="polite">{{ getContactPresence() }}</span>
     </div>
   </div>
 
   <hr />
 
-  @if (errorOccured()) {
-    <div class="container alert alert-danger">Es ist ein Fehler aufgetreten.</div>
+  @if (headerError()) {
+    <div class="container">
+      <app-content-state
+        kind="error"
+        title="Chat konnte nicht geladen werden"
+        message="Die Chatinformationen sind momentan nicht verfügbar."
+        actionLabel="Erneut versuchen"
+        (action)="loadChatHeader()"
+      />
+    </div>
   }
 
-  <div class="messages w-100 p-5">
-    @for (message of messages(); track message.id) {
-      <div
-        class="message card mb-3 p-3"
-        [ngClass]="{
-          'message-sent': isSentByMe(message),
-          'message-received': !isSentByMe(message),
-          'message-unread': isUnreadForMe(message),
-        }"
+  @if (getConnectionMessage(); as connectionMessage) {
+    <div class="container alert alert-warning py-2" role="status">
+      {{ connectionMessage }}
+    </div>
+  }
+
+  @if (sendError()) {
+    <div
+      class="container alert alert-danger d-flex justify-content-between align-items-center"
+      role="alert"
+    >
+      <span>{{ sendError() }}</span>
+      <button
+        type="button"
+        class="btn btn-outline-light btn-sm"
+        [disabled]="isSending()"
+        (click)="retryMessage()"
       >
-        <span>{{ message.content }}</span>
+        Erneut senden
+      </button>
+    </div>
+  }
 
-        <div class="d-flex justify-content-between mt-2">
-          <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+  <div class="messages w-100 p-5" role="log" aria-live="polite">
+    @if (isLoadingMessages()) {
+      <app-content-state
+        kind="loading"
+        title="Nachrichten werden geladen"
+        message="Der Chat ist gleich bereit."
+      />
+    } @else if (messagesError()) {
+      <app-content-state
+        kind="error"
+        title="Nachrichten konnten nicht geladen werden"
+        message="Prüfe deine Verbindung und versuche es erneut."
+        actionLabel="Erneut versuchen"
+        (action)="loadMessages()"
+      />
+    } @else {
+      @for (message of messages(); track message.id; let index = $index) {
+        @if (shouldShowDateSeparator(index)) {
+          <div class="date-separator" role="separator">
+            <span>{{ formatMessageDate(message.createdAt) }}</span>
+          </div>
+        }
 
-          @if (isSentByMe(message)) {
-            @if (message.read) {
-              <ng-icon class="text-primary" name="bootstrapSendCheck"></ng-icon>
-            } @else {
-              <ng-icon class="text-secondary" name="bootstrapSend"></ng-icon>
+        <div
+          class="message card mb-3 p-3"
+          [ngClass]="{
+            'message-sent': isSentByMe(message),
+            'message-received': !isSentByMe(message),
+            'message-unread': isUnreadForMe(message),
+          }"
+        >
+          <span>{{ message.content }}</span>
+
+          <div class="d-flex justify-content-between mt-2">
+            <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+
+            @if (isSentByMe(message)) {
+              @if (message.read) {
+                <ng-icon
+                  class="text-primary"
+                  name="bootstrapSendCheck"
+                  aria-label="Gelesen"
+                ></ng-icon>
+              } @else {
+                <ng-icon
+                  class="text-secondary"
+                  name="bootstrapSend"
+                  aria-label="Gesendet"
+                ></ng-icon>
+              }
             }
-          }
+          </div>
         </div>
-      </div>
-    } @empty {
-      <p class="text-secondary text-center">Noch keine Nachrichten.</p>
+      } @empty {
+        <app-content-state
+          kind="empty"
+          title="Noch keine Nachrichten"
+          message="Schreib die erste Nachricht und starte die Unterhaltung."
+        />
+      }
+
+      <div #messagesEnd class="messages-end" aria-hidden="true"></div>
     }
   </div>
 
   <div class="message-input-container p-4">
     <div class="input-group">
       <input
+        id="chat-message"
         class="form-control"
         [formControl]="messageFC"
         placeholder="Nachricht schreiben..."
+        aria-label="Nachricht"
+        autocomplete="off"
         (keydown.enter)="sendMessage()"
       />
 
@@ -68,8 +143,9 @@
         type="button"
         [disabled]="messageFC.invalid || isSending()"
         (click)="sendMessage()"
+        aria-label="Nachricht senden"
       >
-        <ng-icon name="bootstrapSend"></ng-icon>
+        <ng-icon name="bootstrapSend" aria-hidden="true"></ng-icon>
       </button>
     </div>
   </div>

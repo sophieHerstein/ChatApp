@@ -2,6 +2,8 @@ package de.sophieherstein.chat_app_backend.websocket;
 
 import de.sophieherstein.chat_app_backend.websocket.WebSocketAuthInterceptor.StompPrincipal;
 import de.sophieherstein.chat_app_backend.websocket.dto.OnlineStatusResponse;
+import de.sophieherstein.chat_app_backend.user.User;
+import de.sophieherstein.chat_app_backend.user.UserRepository;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -16,6 +18,7 @@ public class PresenceEventListener {
 
     private final OnlineUserService onlineUserService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserRepository userRepository;
 
     @EventListener
     public void handleConnected(SessionConnectedEvent event) {
@@ -27,9 +30,14 @@ public class PresenceEventListener {
             return;
         }
 
+        User user = userRepository.findById(principal.userId()).orElseThrow();
+        if (!user.isPresenceVisible()) {
+            return;
+        }
+
         messagingTemplate.convertAndSend(
                 "/topic/presence",
-                new OnlineStatusResponse(principal.userId(), true, null)
+                new OnlineStatusResponse(principal.userId(), true, null, true)
         );
     }
 
@@ -45,9 +53,14 @@ public class PresenceEventListener {
             return;
         }
 
+        User user = userRepository.findById(principal.userId()).orElseThrow();
+        if (!user.isPresenceVisible()) {
+            return;
+        }
+
         messagingTemplate.convertAndSend(
                 "/topic/presence",
-                new OnlineStatusResponse(principal.userId(), false, lastSeenAt)
+                new OnlineStatusResponse(principal.userId(), false, lastSeenAt, true)
         );
     }
 }

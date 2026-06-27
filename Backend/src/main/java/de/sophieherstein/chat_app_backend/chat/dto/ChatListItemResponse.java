@@ -13,6 +13,7 @@ public record ChatListItemResponse(
         long unreadCount,
         boolean contact,
         boolean online,
-        LocalDateTime lastSeenAt
+        LocalDateTime lastSeenAt,
+        boolean presenceVisible
 ) {
 }

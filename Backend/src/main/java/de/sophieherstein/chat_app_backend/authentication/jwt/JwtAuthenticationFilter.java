@@ -1,5 +1,7 @@
 package de.sophieherstein.chat_app_backend.authentication.jwt;
 
+import de.sophieherstein.chat_app_backend.user.User;
+import de.sophieherstein.chat_app_backend.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -45,10 +47,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String username = jwtService.extractUsername(token);
+        User user = userRepository.findById(jwtService.extractUserId(token))
+                .orElse(null);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = org.springframework.security.core.userdetails.User
+                    .withUsername(user.getUsername())
+                    .password(user.getPasswordHash())
+                    .authorities("USER")
+                    .build();
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

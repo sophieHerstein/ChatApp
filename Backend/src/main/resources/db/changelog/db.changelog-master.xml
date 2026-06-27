@@ -8,6 +8,4 @@
             https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="db/changelog/001-init.xml"/>
-    <include file="db/changelog/002-user-presence.xml"/>
-
 </databaseChangeLog>

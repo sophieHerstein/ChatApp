@@ -23,11 +23,20 @@ export const routes: Routes = [
       ),
   },
   {
-    path: EAppPaths.Contacts,
-    title: 'Kontakte',
+    path: EAppPaths.Chats,
+    title: 'Chats',
     loadComponent: () =>
       import('./pages/contacts-screen/contacts-screen.component').then(
         (m) => m.ContactsScreenComponent,
+      ),
+    canActivate: [authenticationGuard],
+  },
+  {
+    path: EAppPaths.Contacts,
+    title: 'Kontakte',
+    loadComponent: () =>
+      import('./pages/contact-list-screen/contact-list-screen.component').then(
+        (m) => m.ContactListScreenComponent,
       ),
     canActivate: [authenticationGuard],
   },

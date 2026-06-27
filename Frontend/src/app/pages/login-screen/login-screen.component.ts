@@ -39,7 +39,7 @@ export class LoginScreenComponent {
             console.log(response);
             if (response && response.accessToken && response.user) {
               this.authenticationStoreService.setLogin(response);
-              this.router.navigate(['/' + EAppPaths.Contacts]);
+              this.router.navigate(['/' + EAppPaths.Chats]);
             } else {
               this.errorOccured.set(true);
             }

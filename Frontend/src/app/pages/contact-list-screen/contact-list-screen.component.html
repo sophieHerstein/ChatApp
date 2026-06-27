@@ -1,0 +1,128 @@
+<div class="background">
+  <app-header
+    [showContacts]="false"
+    [showSearch]="true"
+    [isSearching]="!!searchTerm()"
+    (searching)="searchUsers($event)"
+    (isSearchingOutput)="clearSearch()"
+  />
+
+  <main class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <h1 class="mb-1">Kontakte</h1>
+        <p class="text-secondary mb-0">Verwalte deine Kontakte oder starte einen Chat.</p>
+      </div>
+      <span class="badge bg-primary rounded-pill"> {{ contactCount() }} Kontakte </span>
+    </div>
+
+    @if (statusMessage()) {
+      <div class="alert alert-info" role="status">{{ statusMessage() }}</div>
+    }
+
+    @if (isLoading()) {
+      <app-content-state
+        kind="loading"
+        title="Kontakte werden geladen"
+        message="Einen kleinen Moment bitte."
+      />
+    } @else if (hasError()) {
+      <app-content-state
+        kind="error"
+        title="Kontakte konnten nicht geladen werden"
+        message="Prüfe deine Verbindung und versuche es erneut."
+        actionLabel="Erneut versuchen"
+        (action)="loadUsers()"
+      />
+    } @else {
+      <section aria-labelledby="saved-contacts-heading">
+        <h2 id="saved-contacts-heading" class="h5 text-secondary mb-3">Meine Kontakte</h2>
+
+        @for (user of contacts(); track user.id) {
+          <article class="contact-card card p-3 mb-3">
+            <div class="d-flex gap-3 align-items-center">
+              <img
+                [ngSrc]="getProfileImageUrl(user)"
+                (error)="onImageError($event)"
+                [alt]="'Profilbild von ' + (user.username || 'unbekannt')"
+                width="56"
+                height="56"
+                class="rounded-circle"
+              />
+
+              <span class="contact-name flex-grow-1">{{ user.username }}</span>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary d-flex align-items-center gap-2"
+                [disabled]="isPending(user.id)"
+                (click)="openChat(user)"
+              >
+                <ng-icon name="bootstrapChatDotsFill" aria-hidden="true"></ng-icon>
+                Chat
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger d-flex align-items-center gap-2"
+                [disabled]="isPending(user.id)"
+                (click)="removeContact(user)"
+              >
+                <ng-icon name="bootstrapPersonDashFill" aria-hidden="true"></ng-icon>
+                Entfernen
+              </button>
+            </div>
+          </article>
+        } @empty {
+          <app-content-state
+            kind="empty"
+            title="Keine Kontakte gefunden"
+            [message]="
+              searchTerm()
+                ? 'Kein Kontakt passt zu deiner Suche.'
+                : 'Suche nach Nutzern, um deinen ersten Kontakt hinzuzufügen.'
+            "
+          />
+        }
+      </section>
+
+      @if (searchTerm()) {
+        <section class="mt-5" aria-labelledby="other-users-heading">
+          <h2 id="other-users-heading" class="h5 text-secondary mb-3">Weitere Nutzer</h2>
+
+          @for (user of otherUsers(); track user.id) {
+            <article class="contact-card card p-3 mb-3">
+              <div class="d-flex gap-3 align-items-center">
+                <img
+                  [ngSrc]="getProfileImageUrl(user)"
+                  (error)="onImageError($event)"
+                  [alt]="'Profilbild von ' + (user.username || 'unbekannt')"
+                  width="56"
+                  height="56"
+                  class="rounded-circle"
+                />
+
+                <span class="contact-name flex-grow-1">{{ user.username }}</span>
+
+                <button
+                  type="button"
+                  class="btn btn-outline-primary d-flex align-items-center gap-2"
+                  [disabled]="isPending(user.id)"
+                  (click)="addContact(user)"
+                >
+                  <ng-icon name="bootstrapPersonPlusFill" aria-hidden="true"></ng-icon>
+                  Hinzufügen
+                </button>
+              </div>
+            </article>
+          } @empty {
+            <app-content-state
+              kind="empty"
+              title="Keine weiteren Nutzer gefunden"
+              message="Versuche einen anderen Nutzernamen."
+            />
+          }
+        </section>
+      }
+    }
+  </main>
+</div>

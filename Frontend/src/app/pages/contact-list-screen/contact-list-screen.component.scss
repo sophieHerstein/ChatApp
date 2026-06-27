@@ -1,0 +1,19 @@
+app-contact-list-screen {
+  .contact-card {
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  }
+
+  .contact-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
